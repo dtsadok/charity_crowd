@@ -1,5 +1,12 @@
 # CharityCrowd
 
+Create databases:
+  * `createdb charity_crowd_dev`
+  * `createdb charity_crowd_test`
+  * In postgres: `CREATE USER charity_crowd WITH PASSWORD 'charity_crowd';`
+  * `GRANT ALL ON DATABASE charity_crowd_dev TO charity_crowd;`
+  * `GRANT ALL ON DATABASE charity_crowd_test TO charity_crowd;`
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
