@@ -2,8 +2,8 @@ use Mix.Config
 
 # Configure your database
 config :charity_crowd, CharityCrowd.Repo,
-  username: "postgres",
-  password: "postgres",
+  username: "charity_crowd",
+  password: "charity_crowd",
   database: "charity_crowd_dev",
   hostname: "localhost",
   show_sensitive_data_on_connection_error: true,
