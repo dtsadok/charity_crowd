@@ -1,8 +1,11 @@
 defmodule CharityCrowd.Accounts.Member do
   use Ecto.Schema
   import Ecto.Changeset
+  alias CharityCrowd.Grants.Nomination
 
   schema "members" do
+    has_many :nominations, Nomination
+
     field :nickname, :string
     field :first, :string
     field :last, :string
