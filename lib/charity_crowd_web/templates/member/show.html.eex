@@ -1,0 +1,12 @@
+<h1>Show Member</h1>
+
+<ul>
+
+  <li>
+    <strong>Nickname:</strong>
+    <%= @member.nickname %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.member_path(@conn, :edit, @member) %></span>

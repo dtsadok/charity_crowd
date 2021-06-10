@@ -17,6 +17,7 @@ defmodule CharityCrowdWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+    resources "/members", MemberController, only: [:new, :create]
 
     scope "/grants" do
       resources "/nominations", NominationController

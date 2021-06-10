@@ -4,7 +4,7 @@ defmodule CharityCrowd.Grants.Nomination do
 
   schema "nominations" do
     field :name, :string
-    field :percentage, :integer
+    field :percentage, :integer, default: 0
     field :pitch, :string
 
     timestamps()
