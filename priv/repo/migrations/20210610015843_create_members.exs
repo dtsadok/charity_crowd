@@ -11,6 +11,6 @@ defmodule CharityCrowd.Repo.Migrations.CreateMembers do
 
       timestamps()
     end
-
+    create index(:members, [:nickname])
   end
 end
