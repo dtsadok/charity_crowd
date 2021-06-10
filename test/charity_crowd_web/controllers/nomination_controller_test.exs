@@ -1,16 +1,10 @@
 defmodule CharityCrowdWeb.NominationControllerTest do
   use CharityCrowdWeb.ConnCase
-
-  alias CharityCrowd.Grants
+  import CharityCrowd.Fixtures
 
   @create_attrs %{name: "some name", pitch: "some pitch"}
   @update_attrs %{name: "some updated name", pitch: "some updated pitch"}
   @invalid_attrs %{name: nil, pitch: nil}
-
-  def fixture(:nomination) do
-    {:ok, nomination} = Grants.create_nomination(@create_attrs)
-    nomination
-  end
 
   describe "index" do
     test "lists all nominations", %{conn: conn} do
@@ -39,7 +33,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
 
     test "renders errors when data is invalid", %{conn: conn} do
       conn = post(conn, Routes.nomination_path(conn, :create), nomination: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Nomination"
+      assert html_response(conn, 422) =~ "New Nomination"
     end
   end
 
@@ -82,7 +76,8 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   defp create_nomination(_) do
-    nomination = fixture(:nomination)
+    member = fixture(:member)
+    nomination = fixture(:nomination, member: member)
     %{nomination: nomination}
   end
 end

@@ -7,6 +7,7 @@ defmodule CharityCrowd.Accounts do
   alias CharityCrowd.Repo
 
   alias CharityCrowd.Accounts.Member
+  alias CharityCrowd.Grants.Nomination
 
   @doc """
   Returns the list of members.
@@ -19,6 +20,7 @@ defmodule CharityCrowd.Accounts do
   """
   def list_members do
     Repo.all(Member)
+      |> Repo.preload(nominations: :nomination)
   end
 
   @doc """
@@ -35,7 +37,10 @@ defmodule CharityCrowd.Accounts do
       ** (Ecto.NoResultsError)
 
   """
-  def get_member!(id), do: Repo.get!(Member, id)
+  def get_member!(id) do
+    Repo.get!(Member, id)
+      |> Repo.preload(nominations: :nomination)
+  end
 
   @doc """
   Creates a member.
@@ -52,6 +57,7 @@ defmodule CharityCrowd.Accounts do
   def create_member(attrs \\ %{}) do
     %Member{}
     |> Member.changeset(attrs)
+    |> Ecto.Changeset.cast_assoc(:nominations, with: &Nomination.changeset/2)
     |> Repo.insert()
   end
 

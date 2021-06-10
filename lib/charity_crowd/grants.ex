@@ -35,7 +35,9 @@ defmodule CharityCrowd.Grants do
       ** (Ecto.NoResultsError)
 
   """
-  def get_nomination!(id), do: Repo.get!(Nomination, id)
+  def get_nomination!(id) do
+    Repo.get!(Nomination, id)
+  end
 
   @doc """
   Creates a nomination.

@@ -15,6 +15,9 @@ defmodule CharityCrowdWeb.NominationController do
   end
 
   def create(conn, %{"nomination" => nomination_params}) do
+    #TODO: Replace this with current_user
+    nomination_params = Map.put(nomination_params, "member_id", -1)
+
     case Grants.create_nomination(nomination_params) do
       {:ok, nomination} ->
         conn
@@ -22,7 +25,9 @@ defmodule CharityCrowdWeb.NominationController do
         |> redirect(to: Routes.nomination_path(conn, :show, nomination))
 
       {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+        conn
+        |> put_status(422)
+        |> render("new.html", changeset: changeset)
     end
   end
 
