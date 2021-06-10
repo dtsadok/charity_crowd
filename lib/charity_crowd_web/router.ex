@@ -17,6 +17,10 @@ defmodule CharityCrowdWeb.Router do
     pipe_through :browser
 
     get "/", PageController, :index
+
+    scope "/grants" do
+      resources "/nominations", NominationController
+    end
   end
 
   # Other scopes may use custom stacks.

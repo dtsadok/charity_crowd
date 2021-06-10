@@ -1,0 +1,23 @@
+<h1>Show Nomination</h1>
+
+<ul>
+
+  <li>
+    <strong>Name:</strong>
+    <%= @nomination.name %>
+  </li>
+
+  <li>
+    <strong>Pitch:</strong>
+    <%= @nomination.pitch %>
+  </li>
+
+  <li>
+    <strong>Percentage:</strong>
+    <%= @nomination.percentage %>
+  </li>
+
+</ul>
+
+<span><%= link "Edit", to: Routes.nomination_path(@conn, :edit, @nomination) %></span>
+<span><%= link "Back", to: Routes.nomination_path(@conn, :index) %></span>

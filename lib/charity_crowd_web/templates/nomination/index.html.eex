@@ -1,0 +1,30 @@
+<h1>Listing Nominations</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Pitch</th>
+      <th>Percentage</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for nomination <- @nominations do %>
+    <tr>
+      <td><%= nomination.name %></td>
+      <td><%= nomination.pitch %></td>
+      <td><%= nomination.percentage %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.nomination_path(@conn, :show, nomination) %></span>
+        <span><%= link "Edit", to: Routes.nomination_path(@conn, :edit, nomination) %></span>
+        <span><%= link "Delete", to: Routes.nomination_path(@conn, :delete, nomination), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Nomination", to: Routes.nomination_path(@conn, :new) %></span>

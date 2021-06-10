@@ -1,0 +1,5 @@
+<h1>Edit Nomination</h1>
+
+<%= render "form.html", Map.put(assigns, :action, Routes.nomination_path(@conn, :update, @nomination)) %>
+
+<span><%= link "Back", to: Routes.nomination_path(@conn, :index) %></span>
