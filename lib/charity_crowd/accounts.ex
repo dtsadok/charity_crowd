@@ -39,7 +39,7 @@ defmodule CharityCrowd.Accounts do
   """
   def get_member!(id) do
     Repo.get!(Member, id)
-      |> Repo.preload(nominations: :nomination)
+      |> Repo.preload(:nominations)
   end
 
   @doc """
@@ -106,5 +106,24 @@ defmodule CharityCrowd.Accounts do
   """
   def change_member(%Member{} = member, attrs \\ %{}) do
     Member.changeset(member, attrs)
+  end
+
+  def authenticate(email, password) do
+    query =
+      from m in Member,
+        where: m.email == ^email
+
+    case Repo.one(query) do
+      %Member{} = member ->
+        if Argon2.verify_pass(password, member.password) do
+          {:ok, member}
+        else
+          {:error, :invalid_credentials}
+        end
+
+      nil ->
+        Argon2.no_user_verify()
+        {:error, :invalid_credentials}
+    end
   end
 end

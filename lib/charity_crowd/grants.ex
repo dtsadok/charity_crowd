@@ -19,6 +19,7 @@ defmodule CharityCrowd.Grants do
   """
   def list_nominations do
     Repo.all(Nomination)
+      |> Repo.preload(:member)
   end
 
   @doc """
@@ -37,6 +38,7 @@ defmodule CharityCrowd.Grants do
   """
   def get_nomination!(id) do
     Repo.get!(Nomination, id)
+      |> Repo.preload([:member])
   end
 
   @doc """

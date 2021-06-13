@@ -14,14 +14,21 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   describe "new nomination" do
-    test "renders form", %{conn: conn} do
+    test "with login renders form", %{conn: conn} do
+      conn = login_as conn, fixture_member()
       conn = get(conn, Routes.nomination_path(conn, :new))
       assert html_response(conn, 200) =~ "New Nomination"
+    end
+
+    test "with no login redirects to login page", %{conn: conn} do
+      conn = get(conn, Routes.nomination_path(conn, :new))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
   describe "create nomination" do
-    test "redirects to show when data is valid", %{conn: conn} do
+    test "with login redirects to show when data is valid", %{conn: conn} do
+      conn = login_as conn, fixture_member()
       conn = post(conn, Routes.nomination_path(conn, :create), nomination: @create_attrs)
 
       assert %{id: id} = redirected_params(conn)
@@ -31,25 +38,44 @@ defmodule CharityCrowdWeb.NominationControllerTest do
       assert html_response(conn, 200) =~ "Show Nomination"
     end
 
-    test "renders errors when data is invalid", %{conn: conn} do
+    test "with login renders errors when data is invalid", %{conn: conn} do
+      conn = login_as conn, fixture_member()
       conn = post(conn, Routes.nomination_path(conn, :create), nomination: @invalid_attrs)
       assert html_response(conn, 422) =~ "New Nomination"
+    end
+
+    test "with no login redirects to login page", %{conn: conn} do
+      conn = post(conn, Routes.nomination_path(conn, :create), nomination: @create_attrs)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
   describe "edit nomination" do
     setup [:create_nomination]
 
-    test "renders form for editing chosen nomination", %{conn: conn, nomination: nomination} do
+    test "with login by owner renders form for editing chosen nomination", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, nomination.member
       conn = get(conn, Routes.nomination_path(conn, :edit, nomination))
       assert html_response(conn, 200) =~ "Edit Nomination"
+    end
+
+    test "with login by non-owner returns 401", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, fixture_member()
+      conn = get(conn, Routes.nomination_path(conn, :edit, nomination))
+      assert html_response(conn, 401)
+    end
+
+    test "with no login redirects to login page", %{conn: conn, nomination: nomination} do
+      conn = get(conn, Routes.nomination_path(conn, :edit, nomination))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
   describe "update nomination" do
     setup [:create_nomination]
 
-    test "redirects when data is valid", %{conn: conn, nomination: nomination} do
+    test "with login by owner redirects when data is valid", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, nomination.member
       conn = put(conn, Routes.nomination_path(conn, :update, nomination), nomination: @update_attrs)
       assert redirected_to(conn) == Routes.nomination_path(conn, :show, nomination)
 
@@ -57,27 +83,55 @@ defmodule CharityCrowdWeb.NominationControllerTest do
       assert html_response(conn, 200) =~ "some updated name"
     end
 
-    test "renders errors when data is invalid", %{conn: conn, nomination: nomination} do
+    test "with login by owner renders errors when data is invalid", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, nomination.member
       conn = put(conn, Routes.nomination_path(conn, :update, nomination), nomination: @invalid_attrs)
       assert html_response(conn, 200) =~ "Edit Nomination"
+    end
+
+    test "with login by non-owner returns 401", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, fixture_member("other", "other@example.com")
+      conn = put(conn, Routes.nomination_path(conn, :update, nomination), nomination: @update_attrs)
+      assert html_response(conn, 401)
+    end
+
+    test "with no login redirects to login page", %{conn: conn, nomination: nomination} do
+      conn = put(conn, Routes.nomination_path(conn, :update, nomination), nomination: @update_attrs)
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
   end
 
   describe "delete nomination" do
     setup [:create_nomination]
 
-    test "deletes chosen nomination", %{conn: conn, nomination: nomination} do
+    test "with login by owner deletes chosen nomination", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, nomination.member
       conn = delete(conn, Routes.nomination_path(conn, :delete, nomination))
       assert redirected_to(conn) == Routes.nomination_path(conn, :index)
       assert_error_sent 404, fn ->
         get(conn, Routes.nomination_path(conn, :show, nomination))
       end
     end
+
+    test "with login by non-owner returns 401", %{conn: conn, nomination: nomination} do
+      conn = login_as conn, fixture_member("other", "other@example.com")
+      conn = delete(conn, Routes.nomination_path(conn, :delete, nomination))
+      assert html_response(conn, 401)
+    end
+
+    test "with no login redirects", %{conn: conn, nomination: nomination} do
+      conn = delete(conn, Routes.nomination_path(conn, :delete, nomination))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
   end
 
   defp create_nomination(_) do
-    member = fixture(:member)
-    nomination = fixture(:nomination, member: member)
+    member = fixture_member()
+    nomination = fixture_nomination(member: member)
     %{nomination: nomination}
+  end
+
+  defp login_as(conn, member) do
+    Plug.Test.init_test_session(conn, member_id: member.id)
   end
 end

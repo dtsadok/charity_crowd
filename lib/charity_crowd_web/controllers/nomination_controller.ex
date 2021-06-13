@@ -15,8 +15,8 @@ defmodule CharityCrowdWeb.NominationController do
   end
 
   def create(conn, %{"nomination" => nomination_params}) do
-    #TODO: Replace this with current_user
-    nomination_params = Map.put(nomination_params, "member_id", -1)
+    current_member = conn.assigns.current_member
+    nomination_params = Map.put(nomination_params, "member_id", current_member.id)
 
     case Grants.create_nomination(nomination_params) do
       {:ok, nomination} ->

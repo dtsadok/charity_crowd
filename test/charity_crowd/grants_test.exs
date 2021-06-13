@@ -12,19 +12,18 @@ defmodule CharityCrowd.GrantsTest do
     @invalid_attrs %{name: nil, pitch: nil, percentage: nil}
 
     test "list_nominations/0 returns all nominations" do
-      #nomination = nomination_fixture()
-      member = fixture(:member)
-      nomination = fixture(:nomination, member: member)
+      member = fixture_member()
+      nomination = fixture_nomination(member: member)
       assert Grants.list_nominations() == [%{nomination | percentage: 0}]
     end
 
     test "get_nomination!/1 returns the nomination with given id" do
-      nomination = fixture(:nomination)
+      nomination = fixture_nomination()
       assert Grants.get_nomination!(nomination.id) == %{nomination | percentage: 0}
     end
 
     test "create_nomination/1 with valid data creates a nomination" do
-      member = fixture(:member)
+      member = fixture_member()
       attrs = Map.put(@valid_attrs, :member_id, member.id)
 
       assert {:ok, %Nomination{} = nomination} = Grants.create_nomination(attrs)
@@ -34,14 +33,14 @@ defmodule CharityCrowd.GrantsTest do
     end
 
     test "create_nomination/1 with invalid data returns error changeset" do
-      member = fixture(:member)
+      member = fixture_member()
       attrs = Map.put(@invalid_attrs, :member_id, member.id)
 
       assert {:error, %Ecto.Changeset{}} = Grants.create_nomination(attrs)
     end
 
     test "update_nomination/2 with valid data updates the nomination" do
-      nomination = fixture(:nomination)
+      nomination = fixture_nomination()
       assert {:ok, %Nomination{} = nomination} = Grants.update_nomination(nomination, @update_attrs)
       assert nomination.name == "some updated name"
       assert nomination.pitch == "some updated pitch"
@@ -49,19 +48,19 @@ defmodule CharityCrowd.GrantsTest do
     end
 
     test "update_nomination/2 with invalid data returns error changeset" do
-      nomination = fixture(:nomination)
+      nomination = fixture_nomination()
       assert {:error, %Ecto.Changeset{}} = Grants.update_nomination(nomination, @invalid_attrs)
       assert %{nomination | percentage: 0} == Grants.get_nomination!(nomination.id)
     end
 
     test "delete_nomination/1 deletes the nomination" do
-      nomination = fixture(:nomination)
+      nomination = fixture_nomination()
       assert {:ok, %Nomination{}} = Grants.delete_nomination(nomination)
       assert_raise Ecto.NoResultsError, fn -> Grants.get_nomination!(nomination.id) end
     end
 
     test "change_nomination/1 returns a nomination changeset" do
-      nomination = fixture(:nomination)
+      nomination = fixture_nomination()
       assert %Ecto.Changeset{} = Grants.change_nomination(nomination)
     end
   end
