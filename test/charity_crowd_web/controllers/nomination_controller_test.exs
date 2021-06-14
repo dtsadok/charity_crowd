@@ -60,7 +60,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     end
 
     test "with login by non-owner returns 401", %{conn: conn, nomination: nomination} do
-      conn = login_as conn, fixture_member()
+      conn = login_as conn, fixture_member("other", "other@example.com")
       conn = get(conn, Routes.nomination_path(conn, :edit, nomination))
       assert html_response(conn, 401)
     end

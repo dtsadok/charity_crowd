@@ -38,30 +38,49 @@ defmodule CharityCrowdWeb.NominationController do
 
   def edit(conn, %{"id" => id}) do
     nomination = Grants.get_nomination!(id)
-    changeset = Grants.change_nomination(nomination)
-    render(conn, "edit.html", nomination: nomination, changeset: changeset)
+
+    if nomination.member_id == conn.assigns.current_member.id do
+      changeset = Grants.change_nomination(nomination)
+      render(conn, "edit.html", nomination: nomination, changeset: changeset)
+    else
+      conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(401, "Access denied.")
+    end
   end
 
   def update(conn, %{"id" => id, "nomination" => nomination_params}) do
     nomination = Grants.get_nomination!(id)
 
-    case Grants.update_nomination(nomination, nomination_params) do
-      {:ok, nomination} ->
-        conn
-        |> put_flash(:info, "Nomination updated successfully.")
-        |> redirect(to: Routes.nomination_path(conn, :show, nomination))
+    if nomination.member_id == conn.assigns.current_member.id do
+      case Grants.update_nomination(nomination, nomination_params) do
+        {:ok, nomination} ->
+          conn
+            |> put_flash(:info, "Nomination updated successfully.")
+            |> redirect(to: Routes.nomination_path(conn, :show, nomination))
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "edit.html", nomination: nomination, changeset: changeset)
+        {:error, %Ecto.Changeset{} = changeset} ->
+          render(conn, "edit.html", nomination: nomination, changeset: changeset)
+      end
+    else
+      conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(401, "Access denied.")
     end
   end
 
   def delete(conn, %{"id" => id}) do
     nomination = Grants.get_nomination!(id)
-    {:ok, _nomination} = Grants.delete_nomination(nomination)
+    if nomination.member_id == conn.assigns.current_member.id do
+      {:ok, _nomination} = Grants.delete_nomination(nomination)
 
-    conn
-    |> put_flash(:info, "Nomination deleted successfully.")
-    |> redirect(to: Routes.nomination_path(conn, :index))
+      conn
+        |> put_flash(:info, "Nomination deleted successfully.")
+        |> redirect(to: Routes.nomination_path(conn, :index))
+    else
+      conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(401, "Access denied.")
+    end
   end
 end
