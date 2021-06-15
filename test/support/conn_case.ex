@@ -28,6 +28,10 @@ defmodule CharityCrowdWeb.ConnCase do
 
       # The default endpoint for testing
       @endpoint CharityCrowdWeb.Endpoint
+
+    def login_as(conn, member) do
+      Plug.Test.init_test_session(conn, member_id: member.id)
+    end
     end
   end
 

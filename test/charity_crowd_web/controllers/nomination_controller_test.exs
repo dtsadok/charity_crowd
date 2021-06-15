@@ -130,8 +130,4 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     nomination = fixture_nomination(member: member)
     %{nomination: nomination}
   end
-
-  defp login_as(conn, member) do
-    Plug.Test.init_test_session(conn, member_id: member.id)
-  end
 end
