@@ -1,0 +1,28 @@
+<h1>Listing Votes</h1>
+
+<table>
+  <thead>
+    <tr>
+      <th>Member</th>
+      <th>Nomination</th>
+
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+<%= for vote <- @votes do %>
+    <tr>
+      <td><%= vote.member_id %></td>
+      <td><%= vote.nomination_id %></td>
+
+      <td>
+        <span><%= link "Show", to: Routes.vote_path(@conn, :show, vote) %></span>
+        <span><%= link "Edit", to: Routes.vote_path(@conn, :edit, vote) %></span>
+        <span><%= link "Delete", to: Routes.vote_path(@conn, :delete, vote), method: :delete, data: [confirm: "Are you sure?"] %></span>
+      </td>
+    </tr>
+<% end %>
+  </tbody>
+</table>
+
+<span><%= link "New Vote", to: Routes.vote_path(@conn, :new) %></span>

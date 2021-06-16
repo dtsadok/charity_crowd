@@ -25,4 +25,21 @@ defmodule CharityCrowd.Fixtures do
     Grants.get_nomination!(nomination.id)
     #nomination
   end
+
+  def fixture_vote(assoc \\ [], value \\ :Y) do
+    member = assoc[:member] || fixture_member("voter", "voter@example.com")
+    nomination = assoc[:nomination] || fixture_nomination()
+    attrs = %{
+      member_id: member.id,
+      nomination_id: nomination.id,
+      value: value
+    }
+ 
+    {:ok, vote} =
+        attrs
+        |> Grants.create_vote()
+
+    #load from DB to preload associations
+    Grants.get_vote!(vote.id)
+  end
 end

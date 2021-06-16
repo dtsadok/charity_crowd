@@ -64,4 +64,42 @@ defmodule CharityCrowd.GrantsTest do
       assert %Ecto.Changeset{} = Grants.change_nomination(nomination)
     end
   end
+
+  describe "votes" do
+    alias CharityCrowd.Grants.Vote
+
+    @valid_attrs %{member_id: 42, nomination_id: 42, value: :N}
+    @invalid_attrs %{member_id: 42, nomination_id: 42, value: :n}
+
+    test "list_votes/0 returns all votes" do
+      vote = fixture_vote()
+      assert Grants.list_votes() == [vote]
+    end
+
+    test "get_vote!/1 returns the vote with given id" do
+      vote = fixture_vote()
+      assert Grants.get_vote!(vote.id) == vote
+    end
+
+    test "create_vote/1 with valid data creates a vote" do
+      assert {:ok, %Vote{} = vote} = Grants.create_vote(@valid_attrs)
+      assert vote.member_id == 42
+      assert vote.nomination_id == 42
+    end
+
+    test "create_vote/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Grants.create_vote(@invalid_attrs)
+    end
+
+    test "delete_vote/1 deletes the vote" do
+      vote = fixture_vote()
+      assert {:ok, %Vote{}} = Grants.delete_vote(vote)
+      assert_raise Ecto.NoResultsError, fn -> Grants.get_vote!(vote.id) end
+    end
+
+    #test "change_vote/1 returns a vote changeset" do
+    #  vote = fixture_vote()
+    #  assert %Ecto.Changeset{} = Grants.change_vote(vote)
+    #end
+  end
 end

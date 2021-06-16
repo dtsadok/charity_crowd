@@ -18,6 +18,7 @@ defmodule CharityCrowdWeb.Router do
     pipe_through [:browser, :authenticate]
     scope "/grants" do
       resources "/nominations", NominationController, except: [:index, :show]
+      resources "/votes", VoteController, only: [:create, :delete]
     end
   end
 

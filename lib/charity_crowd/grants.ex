@@ -19,7 +19,7 @@ defmodule CharityCrowd.Grants do
   """
   def list_nominations do
     Repo.all(Nomination)
-      |> Repo.preload(:member)
+      |> Repo.preload([:member, :votes])
   end
 
   @doc """
@@ -38,7 +38,7 @@ defmodule CharityCrowd.Grants do
   """
   def get_nomination!(id) do
     Repo.get!(Nomination, id)
-      |> Repo.preload([:member])
+      |> Repo.preload([:member, :votes])
   end
 
   @doc """
@@ -104,5 +104,74 @@ defmodule CharityCrowd.Grants do
   """
   def change_nomination(%Nomination{} = nomination, attrs \\ %{}) do
     Nomination.changeset(nomination, attrs)
+  end
+
+  alias CharityCrowd.Grants.Vote
+
+  @doc """
+  Returns the list of votes.
+
+  ## Examples
+
+      iex> list_votes()
+      [%Vote{}, ...]
+
+  """
+  def list_votes do
+    Repo.all(Vote)
+      |> Repo.preload([:member, :nomination])
+  end
+
+  @doc """
+  Gets a single vote.
+
+  Raises `Ecto.NoResultsError` if the Vote does not exist.
+
+  ## Examples
+
+      iex> get_vote!(123)
+      %Vote{}
+
+      iex> get_vote!(456)
+      ** (Ecto.NoResultsError)
+
+  """
+  def get_vote!(id) do
+    Repo.get!(Vote, id)
+      |> Repo.preload([:member, :nomination])
+  end
+
+  @doc """
+  Creates a vote.
+
+  ## Examples
+
+      iex> create_vote(%{field: value})
+      {:ok, %Vote{}}
+
+      iex> create_vote(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_vote(attrs \\ %{}) do
+    %Vote{}
+    |> Vote.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Deletes a vote.
+
+  ## Examples
+
+      iex> delete_vote(vote)
+      {:ok, %Vote{}}
+
+      iex> delete_vote(vote)
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def delete_vote(%Vote{} = vote) do
+    Repo.delete(vote)
   end
 end
