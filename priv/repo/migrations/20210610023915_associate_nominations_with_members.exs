@@ -5,6 +5,6 @@ defmodule CharityCrowd.Repo.Migrations.AssociateNominationsWithMembers do
     alter table("nominations") do
       add :member_id, references(:members), null: false
     end
-    create index(:nominations, [:member_id])
+    create index(:nominations, :member_id)
   end
 end

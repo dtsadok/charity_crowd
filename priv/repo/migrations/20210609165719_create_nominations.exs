@@ -10,5 +10,6 @@ defmodule CharityCrowd.Repo.Migrations.CreateNominations do
       timestamps()
     end
 
+    create index(:nominations, :name)
   end
 end
