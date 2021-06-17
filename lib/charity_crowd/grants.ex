@@ -13,12 +13,17 @@ defmodule CharityCrowd.Grants do
 
   ## Examples
 
-      iex> list_nominations()
+      iex> list_nominations(month, year)
       [%Nomination{}, ...]
 
   """
-  def list_nominations do
-    Repo.all(Nomination)
+  def list_nominations(month, year) do
+    {start_datetime, end_datetime} = start_end_from(month, year)
+
+    query = from n in Nomination,
+              where: n.inserted_at >= ^start_datetime and n.inserted_at < ^end_datetime
+
+    Repo.all(query)
       |> Repo.preload([:member, :votes])
   end
 
@@ -173,5 +178,18 @@ defmodule CharityCrowd.Grants do
   """
   def delete_vote(%Vote{} = vote) do
     Repo.delete(vote)
+  end
+
+  defp start_end_from(month, year) do
+    {:ok, start_date} = Date.new(year, month, 1)
+    days = Date.days_in_month(start_date)
+    #calculate first of next month
+    end_date = Date.add(start_date, days+1)
+    #TODO: Globalize
+    tz = "America/New_York"
+    start_datetime = Calendar.DateTime.from_date_and_time_and_zone!(start_date, ~T[00:00:00], tz)
+    end_datetime = Calendar.DateTime.from_date_and_time_and_zone!(end_date, ~T[00:00:00], tz)
+
+    {start_datetime, end_datetime}
   end
 end

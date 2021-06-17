@@ -32,6 +32,7 @@ defmodule CharityCrowdWeb.Router do
     resources "/members", MemberController, only: [:new, :create]
 
     scope "/grants" do
+      get "/nominations/:month/:year", NominationController, :index
       resources "/nominations", NominationController, only: [:index, :show]
     end
   end

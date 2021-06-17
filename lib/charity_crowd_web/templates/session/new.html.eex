@@ -1,6 +1,6 @@
 <h1>Sign in</h1>
 
-<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post, as: :user], fn f -> %>
+<%= form_for @conn, Routes.session_path(@conn, :create), [method: :post], fn f -> %>
   <div class="form-group">
     <%= text_input f, :email, placeholder: "Email" %>
   </div>

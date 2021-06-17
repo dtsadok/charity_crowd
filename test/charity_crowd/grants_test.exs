@@ -11,10 +11,12 @@ defmodule CharityCrowd.GrantsTest do
     @update_attrs %{name: "some updated name", pitch: "some updated pitch", percentage: 43}
     @invalid_attrs %{name: nil, pitch: nil, percentage: nil}
 
-    test "list_nominations/0 returns all nominations" do
+    test "list_nominations/2 returns nominations for given month" do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
-      assert Grants.list_nominations() == [%{nomination | percentage: 0}]
+
+      {:ok, now} = Calendar.DateTime.now("America/New_York")
+      assert Grants.list_nominations(now.month, now.year) == [%{nomination | percentage: 0}]
     end
 
     test "get_nomination!/1 returns the nomination with given id" do

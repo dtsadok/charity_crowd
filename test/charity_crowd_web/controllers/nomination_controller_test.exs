@@ -13,6 +13,13 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     end
   end
 
+  describe "index with month/year" do
+    test "lists all nominations", %{conn: conn} do
+      conn = get(conn, Routes.nomination_path(conn, :index), %{month: 1, year: 2021})
+      assert html_response(conn, 200) =~ "Listing Nominations"
+    end
+  end
+
   describe "new nomination" do
     test "with login renders form", %{conn: conn} do
       conn = login_as conn, fixture_member()

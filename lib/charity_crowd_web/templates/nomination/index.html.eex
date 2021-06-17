@@ -1,11 +1,12 @@
 <h1>Listing Nominations</h1>
 
+<span><%= link "Nominate Charity", to: Routes.nomination_path(@conn, :new) %></span>
+
 <table>
   <thead>
     <tr>
-      <th>Name</th>
-      <th>Pitch</th>
-      <th>Percentage</th>
+      <th>Charity Info</th>
+      <th>Percentage Allocation</th>
 
       <th></th>
     </tr>
@@ -13,8 +14,10 @@
   <tbody>
 <%= for nomination <- @nominations do %>
     <tr>
-      <td><%= nomination.name %></td>
-      <td><%= nomination.pitch %></td>
+      <td>
+        <h4><%= nomination.name %></h4>
+        <div class="pitch"><%= nomination.pitch %></div>
+      </td>
       <td><%= nomination.percentage %></td>
 
       <td>
@@ -26,5 +29,3 @@
 <% end %>
   </tbody>
 </table>
-
-<span><%= link "New Nomination", to: Routes.nomination_path(@conn, :new) %></span>

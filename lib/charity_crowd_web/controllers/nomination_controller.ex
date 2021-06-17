@@ -4,8 +4,10 @@ defmodule CharityCrowdWeb.NominationController do
   alias CharityCrowd.Grants
   alias CharityCrowd.Grants.Nomination
 
-  def index(conn, _params) do
-    nominations = Grants.list_nominations()
+  def index(conn, params) do
+    #TODO: Globalize
+    {:ok, now} = Calendar.DateTime.now("America/New_York")
+    nominations = Grants.list_nominations(params[:month] || now.month, params[:year] || now.year)
     render(conn, "index.html", nominations: nominations)
   end
 
