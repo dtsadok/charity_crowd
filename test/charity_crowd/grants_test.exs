@@ -91,6 +91,20 @@ defmodule CharityCrowd.GrantsTest do
       assert {:error, %Ecto.Changeset{}} = Grants.create_vote(@invalid_attrs)
     end
 
+    test "creating a yes vote sets nomination.yes_vote_count" do
+      member = fixture_member("voter", "voter@example.com")
+      vote = fixture_vote(%{member: member}, :Y)
+      assert vote.nomination.yes_vote_count == 1
+      assert vote.nomination.no_vote_count == 0
+    end
+
+    test "creating a no vote sets nomination.no_vote_count" do
+      member = fixture_member("voter", "voter@example.com")
+      vote = fixture_vote(%{member: member}, :N)
+      assert vote.nomination.yes_vote_count == 0
+      assert vote.nomination.no_vote_count == 1
+    end
+
     test "delete_vote/1 deletes the vote" do
       vote = fixture_vote()
       assert {:ok, %Vote{}} = Grants.delete_vote(vote)
