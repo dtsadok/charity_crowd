@@ -1,16 +1,10 @@
 defmodule CharityCrowdWeb.MemberControllerTest do
   use CharityCrowdWeb.ConnCase
-
-  alias CharityCrowd.Accounts
+  import CharityCrowd.Fixtures
 
   @create_attrs %{nickname: "some nickname", first: "Daniel", last: "Tsadok", email: "daniel@example.com", password: "some password"}
   #@update_attrs %{nickname: "some updated nickname", password: "some updated password"}
   @invalid_attrs %{nickname: nil, password: nil}
-
-  def fixture(:member) do
-    {:ok, member} = Accounts.create_member(@create_attrs)
-    member
-  end
 
   #describe "index" do
   #  test "lists all members", %{conn: conn} do
@@ -19,16 +13,17 @@ defmodule CharityCrowdWeb.MemberControllerTest do
   #  end
   #end
 
-  describe "new member" do
+  describe "Sign up page" do
     test "renders form", %{conn: conn} do
       conn = get(conn, Routes.member_path(conn, :new))
-      assert html_response(conn, 200) =~ "New Member"
+      assert html_response(conn, 200) =~ "Sign up"
     end
   end
 
   describe "create member" do
     test "redirects to home when data is valid", %{conn: conn} do
-      conn = post(conn, Routes.member_path(conn, :create), member: @create_attrs)
+      invite_code = fixture_invite_code(%{active: true})
+      conn = post(conn, Routes.member_path(conn, :create), member: @create_attrs, invite_code: invite_code.code)
 
       assert redirected_to(conn) == Routes.page_path(conn, :index)
 
@@ -37,8 +32,16 @@ defmodule CharityCrowdWeb.MemberControllerTest do
     end
 
     test "renders errors when data is invalid", %{conn: conn} do
-      conn = post(conn, Routes.member_path(conn, :create), member: @invalid_attrs)
-      assert html_response(conn, 200) =~ "New Member"
+      invite_code = fixture_invite_code(%{active: true})
+      conn = post(conn, Routes.member_path(conn, :create), member: @invalid_attrs, invite_code: invite_code.code)
+      assert html_response(conn, 422) =~ "Sign up"
+    end
+
+    test "renders errors when invite_code is inactive", %{conn: conn} do
+      invite_code = fixture_invite_code(%{active: false})
+      assert invite_code.active == false
+      conn = post(conn, Routes.member_path(conn, :create), member: @create_attrs, invite_code: invite_code.code)
+      assert html_response(conn, 422) =~ "Sign up"
     end
   end
 

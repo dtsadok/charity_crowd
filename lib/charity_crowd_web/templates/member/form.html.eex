@@ -25,6 +25,9 @@
   <%= password_input f, :password %>
   <%= error_tag f, :password %>
 
+  <label>Invite code:</label>
+  <input name="invite_code" type="text">
+
   <div>
     <%= submit "Save" %>
   </div>

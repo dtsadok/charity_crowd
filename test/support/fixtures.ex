@@ -42,4 +42,13 @@ defmodule CharityCrowd.Fixtures do
     #load from DB to preload associations
     Grants.get_vote!(vote.id)
   end
+
+    def fixture_invite_code(attrs \\ %{}) do
+      {:ok, invite_code} =
+        attrs
+        |> Enum.into(%{code: "AAAAAA", active: true})
+        |> Accounts.create_invite_code()
+
+      invite_code
+    end
 end

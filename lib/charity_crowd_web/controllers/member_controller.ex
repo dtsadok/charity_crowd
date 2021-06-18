@@ -14,15 +14,30 @@ defmodule CharityCrowdWeb.MemberController do
     render(conn, "new.html", changeset: changeset)
   end
 
-  def create(conn, %{"member" => member_params}) do
-    case Accounts.create_member(member_params) do
-      {:ok, _member} ->
-        conn
-        |> put_flash(:info, "Member created successfully.")
-        |> redirect(to: Routes.page_path(conn, :index))
+  def create(conn, %{"member" => member_params, "invite_code" => code}) do
+    try do
+      #TODO: replace this check with plug(?)
+      invite_code = Accounts.get_active_invite_code!(code)
 
-      {:error, %Ecto.Changeset{} = changeset} ->
-        render(conn, "new.html", changeset: changeset)
+      case Accounts.create_member(member_params) do
+        {:ok, _member} ->
+          Accounts.update_invite_code(invite_code, %{active: false})
+          conn
+          |> put_flash(:info, "Signed up successfully.")
+          |> redirect(to: Routes.page_path(conn, :index))
+
+        {:error, %Ecto.Changeset{} = changeset} ->
+        conn
+        |> put_status(422)
+        |> render("new.html", changeset: changeset)
+      end
+    rescue
+      Ecto.NoResultsError ->
+        changeset = Accounts.change_member(%Member{})
+        conn
+        |> put_status(422)
+        |> put_flash(:info, "Invalid invite code.")
+        |> render("new.html", changeset: changeset)
     end
   end
 
