@@ -1,0 +1,10 @@
+.cc-logo
+{
+  display: inline-block;
+  padding: 0.5em;
+  line-height: 1.1em;
+  border: 5px solid;
+  text-align: center;
+  color: black;
+  text-transform: uppercase;
+}
