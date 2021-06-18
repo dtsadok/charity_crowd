@@ -21,6 +21,7 @@ defmodule CharityCrowd.Grants.Vote do
     |> validate_required([:member_id, :nomination_id, :value])
     |> foreign_key_constraint(:member_id)
     |> foreign_key_constraint(:nomination_id)
+    |> unique_constraint([:member_id, :nomination_id])
     |> prepare_changes(fn changeset ->
          if nomination_id = get_change(changeset, :nomination_id) do
            query = from Nomination, where: [id: ^nomination_id]
