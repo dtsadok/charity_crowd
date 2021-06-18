@@ -8,3 +8,23 @@
   color: black;
   text-transform: uppercase;
 }
+
+form
+{
+  margin-bottom: 0;
+}
+
+.yes-vote, .no-vote
+{
+  text-align: center;
+}
+
+.yes-vote button
+{
+  background-color: #18a314;
+}
+
+.no-vote button
+{
+  background-color: #a41419;
+}
