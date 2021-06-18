@@ -8,12 +8,12 @@ On the nominations page:
 ^ Vote buttons are accessible
 + I can see the list of current nominations
 * I can see how many votes each nomination has received
-^ I can see the nominations for a previous month, but cannot vote for them
-^ I can vote Yes on a nomination
-^ I can vote No on a nomination
-^ I can withdraw my vote
+* I can see the nominations for a previous month, but cannot vote for them
++ I can vote Yes on a nomination
++ I can vote No on a nomination
++ I can withdraw my vote
 ^ I can change my vote
-^ I can't change votes for previous month
+* I can't change votes for previous month
 + I can go to the Nominate page
 ^ I can see the total current monthly allocation
 ^ I can see the current monthly allocation for each nomination
