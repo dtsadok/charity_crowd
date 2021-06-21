@@ -1,0 +1,6 @@
+        <%= form_for @conn, Routes.vote_path(@conn, :create), [as: :vote], fn f -> %>
+          <%= hidden_input f, :nomination_id, value: @nomination.id %>
+          <%= hidden_input f, :value, value: "N" %>
+          <%= submit "#{@nomination.no_vote_count}" %>
+        <% end %>
+

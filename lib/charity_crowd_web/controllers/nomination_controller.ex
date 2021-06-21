@@ -8,11 +8,13 @@ defmodule CharityCrowdWeb.NominationController do
     current_member = conn.assigns[:current_member]
     #TODO: Globalize
     {:ok, now} = Calendar.DateTime.now("America/New_York")
+    month = params[:month] || now.month
+    year = params[:year] || now.year
     nominations = case current_member do
-      nil -> Grants.list_nominations(params[:month] || now.month, params[:year] || now.year)
-      _ -> Grants.list_nominations_with_votes_by(current_member, params[:month] || now.month, params[:year] || now.year)
+      nil -> Grants.list_nominations(month, year)
+      _ -> Grants.list_nominations_with_votes_by(current_member, month, year)
     end
-    render(conn, "index.html", current_member: current_member, nominations: nominations)
+    render(conn, "index.html", current_member: current_member, now: now, month: month, year: year, nominations: nominations)
   end
 
   def new(conn, _params) do
