@@ -11,7 +11,7 @@ On the nominations page:
 * I can see the nominations for a previous month, but cannot vote for them
 + I can vote Yes on a nomination
 + I can vote No on a nomination
-+ I can withdraw my vote
+* I can withdraw my vote
 ^ I can change my vote
 * I can't change votes for previous month
 + I can go to the Nominate page

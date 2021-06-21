@@ -7,6 +7,7 @@ defmodule CharityCrowd.Grants do
   alias CharityCrowd.Repo
 
   alias CharityCrowd.Grants.Nomination
+  alias CharityCrowd.Grants.Vote
 
   @doc """
   Returns the list of nominations.
@@ -25,6 +26,19 @@ defmodule CharityCrowd.Grants do
 
     Repo.all(query)
       |> Repo.preload([:member, :votes])
+  end
+
+  def list_nominations_with_votes_by(member, month, year) do
+    {start_datetime, end_datetime} = start_end_from(month, year)
+
+    query = from n in Nomination,
+              left_join: v in Vote,
+              on: v.nomination_id == n.id,
+              select: %{id: n.id, name: n.name, pitch: n.pitch, vote_value: v.value},
+              where: v.member_id == ^member.id and n.inserted_at >= ^start_datetime and n.inserted_at < ^end_datetime
+
+    Repo.all(query)
+      #|> Repo.preload([:member, :votes])
   end
 
   @doc """

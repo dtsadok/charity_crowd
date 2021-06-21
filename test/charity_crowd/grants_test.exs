@@ -19,6 +19,17 @@ defmodule CharityCrowd.GrantsTest do
       assert Grants.list_nominations(now.month, now.year) == [%{nomination | percentage: 0}]
     end
 
+    test "list_nominations_with_votes_by/3 returns nominations for given month with votes by given member" do
+      member = fixture_member()
+      nomination = fixture_nomination(member: member)
+      vote = fixture_vote(member: member, nomination: nomination, value: :N)
+
+      {:ok, now} = Calendar.DateTime.now("America/New_York")
+      nomination_with_votes = Grants.list_nominations_with_votes_by(member, now.month, now.year) |> hd
+      assert nomination_with_votes.id == nomination.id
+      assert nomination_with_votes.vote_value == vote.value
+    end
+
     test "get_nomination!/1 returns the nomination with given id" do
       nomination = fixture_nomination()
       assert Grants.get_nomination!(nomination.id) == %{nomination | percentage: 0}

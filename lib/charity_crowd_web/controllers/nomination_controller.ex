@@ -5,10 +5,14 @@ defmodule CharityCrowdWeb.NominationController do
   alias CharityCrowd.Grants.Nomination
 
   def index(conn, params) do
+    current_member = conn.assigns[:current_member]
     #TODO: Globalize
     {:ok, now} = Calendar.DateTime.now("America/New_York")
-    nominations = Grants.list_nominations(params[:month] || now.month, params[:year] || now.year)
-    render(conn, "index.html", nominations: nominations)
+    nominations = case current_member do
+      nil -> Grants.list_nominations(params[:month] || now.month, params[:year] || now.year)
+      _ -> Grants.list_nominations_with_votes_by(current_member, params[:month] || now.month, params[:year] || now.year)
+    end
+    render(conn, "index.html", current_member: current_member, nominations: nominations)
   end
 
   def new(conn, _params) do

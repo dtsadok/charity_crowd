@@ -11,6 +11,12 @@ defmodule CharityCrowdWeb.NominationControllerTest do
       conn = get(conn, Routes.nomination_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Nominations"
     end
+
+    test "lists all nominations when logged in", %{conn: conn} do
+      conn = login_as conn, fixture_member()
+      conn = get(conn, Routes.nomination_path(conn, :index))
+      assert html_response(conn, 200) =~ "Listing Nominations"
+    end
   end
 
   describe "index with month/year" do
