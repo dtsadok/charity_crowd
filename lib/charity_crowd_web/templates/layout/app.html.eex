@@ -16,6 +16,13 @@
             <li>
               <%= link "Current Nominations", to: Routes.nomination_path(@conn, :index) %>
             </li>
+            <li>
+              <%= if @conn.assigns.current_member == nil do %>
+                <%= link "Log in", to: Routes.session_path(@conn, :new) %>
+              <% else %>
+                <%= link "Log out", to: Routes.session_path(@conn, :delete) %>
+              <% end %>
+            </li>
             <%= if function_exported?(Routes, :live_dashboard_path, 2) do %>
               <li><%= link "LiveDashboard", to: Routes.live_dashboard_path(@conn, :home) %></li>
             <% end %>
