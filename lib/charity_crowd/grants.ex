@@ -31,11 +31,11 @@ defmodule CharityCrowd.Grants do
   def list_nominations_with_votes_by(member, month, year) do
     {start_datetime, end_datetime} = start_end_from(month, year)
 
-    query = from n in Nomination,
+    query = from nom in Nomination,
               left_join: v in Vote,
-              on: v.nomination_id == n.id,
-              select: %{id: n.id, name: n.name, pitch: n.pitch, vote_value: v.value},
-              where: v.member_id == ^member.id and n.inserted_at >= ^start_datetime and n.inserted_at < ^end_datetime
+              on: v.nomination_id == nom.id,
+              select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, yes_vote_count: nom.yes_vote_count, no_vote_count: nom.no_vote_count, vote_value: v.value},
+              where: v.member_id == ^member.id and nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
 
     Repo.all(query)
       #|> Repo.preload([:member, :votes])
