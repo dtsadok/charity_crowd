@@ -16,6 +16,11 @@ defmodule CharityCrowd.AccountsTest do
       assert Accounts.list_members() == [member]
     end
 
+    test "get_member/1 returns the member with given id" do
+      member = fixture_member()
+      assert Accounts.get_member(member.id) == member
+    end
+
     test "get_member!/1 returns the member with given id" do
       member = fixture_member()
       assert Accounts.get_member!(member.id) == member

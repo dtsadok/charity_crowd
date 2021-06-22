@@ -26,6 +26,25 @@ defmodule CharityCrowd.Accounts do
   @doc """
   Gets a single member.
 
+  Returns nil if the Member does not exist.
+
+  ## Examples
+
+      iex> get_member(123)
+      %Member{}
+
+      iex> get_member(456)
+      ** nil
+
+  """
+  def get_member(id) do
+    Repo.get(Member, id)
+      |> Repo.preload(:nominations)
+  end
+
+  @doc """
+  Gets a single member.
+
   Raises `Ecto.NoResultsError` if the Member does not exist.
 
   ## Examples
