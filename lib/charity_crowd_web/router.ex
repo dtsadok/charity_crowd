@@ -23,7 +23,7 @@ defmodule CharityCrowdWeb.Router do
   end
 
   scope "/", CharityCrowdWeb do
-    pipe_through :browser
+    pipe_through [:browser, :get_current_member]
 
     get "/", PageController, :index
 
@@ -68,5 +68,10 @@ defmodule CharityCrowdWeb.Router do
       member_id ->
         assign(conn, :current_member, CharityCrowd.Accounts.get_member!(member_id))
     end
+  end
+
+  defp get_current_member(conn, _) do
+    member_id = get_session(conn, :member_id)
+    assign(conn, :current_member, CharityCrowd.Accounts.get_member(member_id))
   end
 end
