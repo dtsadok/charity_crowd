@@ -71,7 +71,10 @@ defmodule CharityCrowdWeb.Router do
   end
 
   defp get_current_member(conn, _) do
-    member_id = get_session(conn, :member_id)
-    assign(conn, :current_member, CharityCrowd.Accounts.get_member(member_id))
+    case get_session(conn, :member_id) do
+      nil -> assign(conn, :current_member, nil)
+      member_id ->
+        assign(conn, :current_member, CharityCrowd.Accounts.get_member!(member_id))
+    end
   end
 end
