@@ -35,12 +35,11 @@ defmodule CharityCrowd.Fixtures do
       value: value
     }
  
-    {:ok, vote} =
+    {:ok, _vote} =
         attrs
         |> Grants.create_vote()
 
-    #load from DB to preload associations
-    Grants.get_vote!(vote.id)
+    Grants.get_vote!(member.id, nomination.id)
   end
 
     def fixture_invite_code(attrs \\ %{}) do

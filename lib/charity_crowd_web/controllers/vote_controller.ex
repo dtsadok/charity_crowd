@@ -18,8 +18,9 @@ defmodule CharityCrowdWeb.VoteController do
     end
   end
 
-  def delete(conn, %{"id" => id}) do
-    vote = Grants.get_vote!(id)
+  def delete(conn, %{"id" => nomination_id}) do
+    member_id = conn.assigns[:current_member].id
+    vote = Grants.get_vote!(member_id, nomination_id)
     {:ok, _vote} = Grants.delete_vote(vote)
 
     conn

@@ -33,9 +33,9 @@ defmodule CharityCrowd.Grants do
 
     query = from nom in Nomination,
               left_join: v in Vote,
-              on: v.nomination_id == nom.id,
+              on: v.nomination_id == nom.id and v.member_id == ^member.id,
               select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, yes_vote_count: nom.yes_vote_count, no_vote_count: nom.no_vote_count, vote_value: v.value},
-              where: v.member_id == ^member.id and nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
+              where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
 
     Repo.all(query)
       #|> Repo.preload([:member, :votes])
@@ -148,15 +148,17 @@ defmodule CharityCrowd.Grants do
 
   ## Examples
 
-      iex> get_vote!(123)
+      iex> get_vote!(123, 456)
       %Vote{}
 
-      iex> get_vote!(456)
+      iex> get_vote!(456, 789)
       ** (Ecto.NoResultsError)
 
   """
-  def get_vote!(id) do
-    Repo.get!(Vote, id)
+  def get_vote!(member_id, nomination_id) do
+    query = from v in Vote,
+              where: v.member_id==^member_id and v.nomination_id==^nomination_id
+    Repo.one!(query)
       |> Repo.preload([:member, :nomination])
   end
 

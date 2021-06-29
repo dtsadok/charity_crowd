@@ -91,7 +91,7 @@ defmodule CharityCrowd.GrantsTest do
 
     test "get_vote!/1 returns the vote with given id" do
       vote = fixture_vote()
-      assert Grants.get_vote!(vote.id) == vote
+      assert Grants.get_vote!(vote.member_id, vote.nomination_id) == vote
     end
 
     test "create_vote/1 with valid data creates a vote" do
@@ -121,7 +121,7 @@ defmodule CharityCrowd.GrantsTest do
     test "delete_vote/1 deletes the vote" do
       vote = fixture_vote()
       assert {:ok, %Vote{}} = Grants.delete_vote(vote)
-      assert_raise Ecto.NoResultsError, fn -> Grants.get_vote!(vote.id) end
+      assert_raise Ecto.NoResultsError, fn -> Grants.get_vote!(vote.member_id, vote.nomination_id) end
     end
 
     #test "change_vote/1 returns a vote changeset" do

@@ -34,14 +34,14 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
     test "when owner deletes chosen vote", %{conn: conn, vote: vote} do
       conn = login_as conn, vote.member
-      conn = delete(conn, Routes.vote_path(conn, :delete, vote))
+      conn = delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
 
       assert redirected_to(conn) == Routes.nomination_path(conn, :index)
     end
 
     test "when not owner returns 401", %{conn: conn, vote: vote} do
       conn = login_as conn, fixture_member("other", "other@example.com")
-      conn = delete(conn, Routes.vote_path(conn, :delete, vote))
+      conn = delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
       assert html_response(conn, 401)
     end
   end
