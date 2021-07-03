@@ -1,7 +1,6 @@
 defmodule CharityCrowd.Grants.Vote do
   use Ecto.Schema
   import Ecto.Changeset
-  import Ecto.Query
 
   alias CharityCrowd.Accounts.Member
   alias CharityCrowd.Grants.Nomination
@@ -22,17 +21,5 @@ defmodule CharityCrowd.Grants.Vote do
     |> foreign_key_constraint(:member_id)
     |> foreign_key_constraint(:nomination_id)
     |> unique_constraint([:member_id, :nomination_id])
-    |> prepare_changes(fn changeset ->
-         if nomination_id = get_change(changeset, :nomination_id) do
-           query = from Nomination, where: [id: ^nomination_id]
-
-           case get_change(changeset, :value) do
-             :Y -> changeset.repo.update_all(query, inc: [yes_vote_count: 1])
-             :N -> changeset.repo.update_all(query, inc: [no_vote_count: 1])
-           end
-         end
-         changeset
-     end)
-
   end
 end

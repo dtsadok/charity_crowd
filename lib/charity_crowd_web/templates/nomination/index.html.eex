@@ -23,8 +23,8 @@
       <td class="yes-vote">
         <%=
         cond do
-          @current_member == nil || @month != @now.month || @year != @now.year -> nomination.yes_vote_count
-          nomination.vote_value == :Y -> render("withdraw_vote.html", conn: @conn, nomination: nomination)
+          @current_member == nil || @month != @now.month || @year != @now.year -> nomination.yes_vote_count || 0
+          nomination.vote_value == :Y -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_yes_vote.html", conn: @conn, nomination: nomination)
         end
         %>
@@ -32,8 +32,8 @@
       <td class="no-vote">
         <%=
         cond do
-          @current_member == nil || @month != @now.month || @year != @now.year -> nomination.no_vote_count
-          nomination.vote_value == :N -> render("withdraw_vote.html", conn: @conn, nomination: nomination)
+          @current_member == nil || @month != @now.month || @year != @now.year -> nomination.no_vote_count || 0
+          nomination.vote_value == :N -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_no_vote.html", conn: @conn, nomination: nomination)
         end
         %>

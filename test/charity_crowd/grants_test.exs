@@ -16,7 +16,7 @@ defmodule CharityCrowd.GrantsTest do
       nomination = fixture_nomination(member: member)
 
       {:ok, now} = Calendar.DateTime.now("America/New_York")
-      assert Grants.list_nominations(now.month, now.year) == [%{nomination | percentage: 0}]
+      assert Grants.list_nominations(now.month, now.year) == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Fixtures for Ecto", no_vote_count: nil, percentage: 0, pitch: "Fixtures for Ecto", yes_vote_count: nil}]
     end
 
     test "list_nominations_with_votes_by/3 returns nominations for given month with votes by given member" do
@@ -106,16 +106,24 @@ defmodule CharityCrowd.GrantsTest do
 
     test "creating a yes vote sets nomination.yes_vote_count" do
       member = fixture_member("voter", "voter@example.com")
-      vote = fixture_vote(%{member: member}, :Y)
-      assert vote.nomination.yes_vote_count == 1
-      assert vote.nomination.no_vote_count == 0
+      _vote = fixture_vote(%{member: member}, :Y)
+
+      {:ok, now} = Calendar.DateTime.now("America/New_York")
+      nominations = Grants.list_nominations(now.month, now.year)
+
+      assert hd(nominations).yes_vote_count == 1
+      assert hd(nominations).no_vote_count == nil
     end
 
     test "creating a no vote sets nomination.no_vote_count" do
       member = fixture_member("voter", "voter@example.com")
-      vote = fixture_vote(%{member: member}, :N)
-      assert vote.nomination.yes_vote_count == 0
-      assert vote.nomination.no_vote_count == 1
+      _vote = fixture_vote(%{member: member}, :N)
+
+      {:ok, now} = Calendar.DateTime.now("America/New_York")
+      nominations = Grants.list_nominations(now.month, now.year)
+
+      assert hd(nominations).yes_vote_count == nil
+      assert hd(nominations).no_vote_count == 1
     end
 
     test "delete_vote/1 deletes the vote" do

@@ -1,4 +1,7 @@
-<%= form_for @conn, Routes.vote_path(@conn, :delete, @nomination.id), [method: :delete, as: :vote], fn f -> %>
-  <%= submit "#{@nomination.yes_vote_count}" %>
+<%= form_for @conn, Routes.vote_path(@conn, :delete, @nomination.id), [method: :delete, as: :vote], fn _ -> %>
+  <%= case @vote_type do
+    :Y -> submit("#{@nomination.yes_vote_count || 0}")
+    :N -> submit("#{@nomination.no_vote_count || 0}")
+  end %>
 <% end %>
 

@@ -9,6 +9,24 @@ defmodule CharityCrowd.Grants do
   alias CharityCrowd.Grants.Nomination
   alias CharityCrowd.Grants.Vote
 
+  #inspired by https://medium.com/@eric.programmer/the-sql-alternative-to-counter-caches-59e2098b7d7
+  def vote_count_subquery do
+    from v in Vote,
+      select: %{
+        nomination_id: v.nomination_id,
+        vote_count: count(v.id)
+      },
+      group_by: v.nomination_id
+  end
+
+  def yes_vote_count_subquery do
+    from v in vote_count_subquery(), where: v.value == :Y
+  end
+
+  def no_vote_count_subquery do
+    from v in vote_count_subquery(), where: v.value == :N
+  end
+
   @doc """
   Returns the list of nominations.
 
@@ -20,22 +38,29 @@ defmodule CharityCrowd.Grants do
   """
   def list_nominations(month, year) do
     {start_datetime, end_datetime} = start_end_from(month, year)
-
-    query = from n in Nomination,
-              where: n.inserted_at >= ^start_datetime and n.inserted_at < ^end_datetime
-
+    query = from nom in Nomination,
+      left_join: yv in subquery(yes_vote_count_subquery()),
+      on: yv.nomination_id == nom.id,
+      left_join: nv in subquery(no_vote_count_subquery()),
+      on: nv.nomination_id == nom.id,
+      select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count},
+      where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
     Repo.all(query)
-      |> Repo.preload([:member, :votes])
+      #|> Repo.preload([:member, :votes])
   end
 
   def list_nominations_with_votes_by(member, month, year) do
     {start_datetime, end_datetime} = start_end_from(month, year)
 
     query = from nom in Nomination,
-              left_join: v in Vote,
-              on: v.nomination_id == nom.id and v.member_id == ^member.id,
-              select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, yes_vote_count: nom.yes_vote_count, no_vote_count: nom.no_vote_count, vote_value: v.value},
-              where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
+      left_join: yv in subquery(yes_vote_count_subquery()),
+      on: yv.nomination_id == nom.id,
+      left_join: nv in subquery(no_vote_count_subquery()),
+      on: nv.nomination_id == nom.id,
+      left_join: v in Vote,
+      on: v.nomination_id == nom.id and v.member_id == ^member.id,
+      select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count, vote_value: v.value},
+      where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
 
     Repo.all(query)
       #|> Repo.preload([:member, :votes])
