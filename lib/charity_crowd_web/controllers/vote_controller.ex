@@ -5,7 +5,9 @@ defmodule CharityCrowdWeb.VoteController do
 
   def create(conn, %{"vote" => vote_params}) do
     member_id = conn.assigns[:current_member].id
-    case Grants.create_vote(Map.put(vote_params, "member_id", member_id)) do
+    vote_params = Map.put(vote_params, "member_id", member_id)
+
+    case Grants.create_vote(vote_params) do
       {:ok, vote} ->
         conn
         |> put_flash(:info, "Vote counted successfully.")
