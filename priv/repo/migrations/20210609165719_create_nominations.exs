@@ -5,7 +5,7 @@ defmodule CharityCrowd.Repo.Migrations.CreateNominations do
     create table(:nominations) do
       add :name, :string
       add :pitch, :text
-      add :percentage, :integer, default: 0
+      add :percentage, :float, default: 0
 
       timestamps()
     end

@@ -1,3 +1,5 @@
+#TODO: nominations should include a charity_id referencing a
+#specific charity, which should be unique per voting period
 defmodule CharityCrowd.Grants.Nomination do
   use Ecto.Schema
   import Ecto.Changeset
@@ -8,7 +10,7 @@ defmodule CharityCrowd.Grants.Nomination do
     belongs_to :member, Member
     has_many :votes, Vote
     field :name, :string
-    field :percentage, :integer, default: 0
+    field :percentage, :float, default: 0.0
     field :pitch, :string
 
     timestamps()
