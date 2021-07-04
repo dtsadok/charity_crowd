@@ -11,5 +11,6 @@ defmodule CharityCrowd.Repo.Migrations.CreateNominations do
     end
 
     create index(:nominations, :name)
+    create index(:nominations, :inserted_at)
   end
 end
