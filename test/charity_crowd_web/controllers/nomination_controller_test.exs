@@ -39,7 +39,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     end
 
     #TODO: write as behavior test
-    test "allows me to vote when logged in", %{conn: conn} do
+    test "allows me to vote when logged in as other", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
       _vote = fixture_vote(member: member, nomination: nomination, value: :N)
