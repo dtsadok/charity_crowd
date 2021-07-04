@@ -50,10 +50,11 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       assert redirected_to(conn) == Routes.nomination_path(conn, :index)
     end
 
-    test "when not owner returns 401", %{conn: conn, vote: vote} do
+    test "when not owner raises error", %{conn: conn, vote: vote} do
       conn = login_as conn, fixture_member("other", "other@example.com")
-      conn = delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
-      assert html_response(conn, 401)
+      assert_raise Ecto.NoResultsError, fn ->
+        delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
+      end
     end
   end
 
