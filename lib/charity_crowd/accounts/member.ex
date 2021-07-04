@@ -21,7 +21,8 @@ defmodule CharityCrowd.Accounts.Member do
     member
     |> cast(attrs, [:nickname, :first, :last, :email, :password])
     |> validate_required([:nickname, :email, :password])
-    |> unique_constraint([:nickname, :email])
+    |> unique_constraint(:nickname)
+    |> unique_constraint(:email)
     |> put_password_hash()
    end
 
