@@ -27,6 +27,17 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       conn = post(conn, Routes.vote_path(conn, :create), vote: @invalid_attrs)
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
+
+    #it's the test
+    test "does not allow me to double-vote", %{conn: conn} do
+      member = fixture_member()
+      nomination = fixture_nomination(member: member)
+      vote = fixture_vote(member: member, nomination: nomination, value: :Y)
+
+      conn = login_as conn, member
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: vote.nomination_id, value: :Y})
+      assert html_response(conn, 422) =~ "invalid"
+    end
   end
 
   describe "delete vote" do
