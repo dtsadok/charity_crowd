@@ -38,7 +38,7 @@
         end
         %>
       </td>
-      <td><%= nomination.percentage %></td>
+      <td><%= round(nomination.percentage * 10000)/100 %>%</td>
 
       <td>
         <span><%= link "Show", to: Routes.nomination_path(@conn, :show, nomination.id) %></span>
