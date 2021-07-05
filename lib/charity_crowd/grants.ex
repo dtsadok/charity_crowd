@@ -68,33 +68,31 @@ defmodule CharityCrowd.Grants do
   end
 
   def calculate_percentages!(nominations) do
-    filtered = Enum.filter(nominations, fn nom -> (nom.yes_vote_count||0) > (nom.no_vote_count||0) end)
+    filtered = Enum.filter(nominations,
+      fn nom -> (nom.yes_vote_count||0) > (nom.no_vote_count||0) end)
 
-    total_y = filtered
-      |> Enum.map(fn nom -> nom.yes_vote_count || 0 end)
-      |> Enum.reduce(&+/2)
+    if !Enum.empty?(filtered) do
+      total_yes_votes = filtered
+        |> Enum.map(fn nom -> nom.yes_vote_count || 0 end)
+        |> Enum.reduce(&+/2)
 
-    total_n = filtered
-    |> Enum.map(fn nom -> nom.no_vote_count || 0 end)
-    |> Enum.reduce(&+/2)
+      total_no_votes = filtered
+        |> Enum.map(fn nom -> nom.no_vote_count || 0 end)
+        |> Enum.reduce(&+/2)
 
-    Enum.each(nominations, fn(nomination) ->
-      y = nomination.yes_vote_count || 0
-      n = nomination.no_vote_count || 0
+      Enum.each(filtered, fn(nomination) ->
+        y = nomination.yes_vote_count || 0
+        n = nomination.no_vote_count || 0
 
-      pct =
-      if y > n do
-        (1.0 * y - n)/(total_y - total_n)
-      else
-        0
-      end
+        pct = (1.0 * y - n)/(total_yes_votes - total_no_votes)
 
-      #TODO: Optimize - this part is very slow (2N queries for N nominations)
-      #We need to do this b/c update_nomination expects a %Nomination{}
-      {:ok, _} =
-        get_nomination!(nomination.id)
-        |> update_nomination(%{percentage: pct})
-    end)
+        #TODO: Optimize - this part is very slow (2N queries for N nominations)
+        #We can't just call update_nomination b/c it expects a %Nomination{}
+        {:ok, _} =
+          get_nomination!(nomination.id)
+            |> update_nomination(%{percentage: pct})
+      end)
+    end
   end
 
   @doc """
