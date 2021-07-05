@@ -2,13 +2,13 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   use CharityCrowdWeb.ConnCase
   import CharityCrowd.Fixtures
 
-  @create_attrs %{nomination_id: 42, value: :Y}
   @invalid_attrs %{nomination_id: 42, value: :Z}
 
   describe "create vote" do
     test "with login redirects to nominations when data is valid", %{conn: conn} do
       conn = login_as conn, fixture_member()
-      conn = post(conn, Routes.vote_path(conn, :create), vote: @create_attrs)
+      nomination = fixture_nomination()
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
 
       assert %{id: id} = redirected_params(conn)
       assert redirected_to(conn) == Routes.nomination_path(conn, :show, id)
