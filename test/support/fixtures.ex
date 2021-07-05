@@ -13,7 +13,7 @@ defmodule CharityCrowd.Fixtures do
   end
 
   def fixture_nomination(assoc \\ []) do
-    member = assoc[:member] || fixture_member()
+    member = assoc[:member] || fixture_member("nominator", "nominator@example.com")
     attrs = %{
       member_id: member.id,
       name: "Charity",
