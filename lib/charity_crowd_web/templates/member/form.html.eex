@@ -29,6 +29,6 @@
   <input name="invite_code" type="text">
 
   <div>
-    <%= submit "Save" %>
+    <%= submit "Sign Up" %>
   </div>
 <% end %>
