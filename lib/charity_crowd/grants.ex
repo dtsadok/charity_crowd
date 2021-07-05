@@ -38,6 +38,7 @@ defmodule CharityCrowd.Grants do
   """
   def list_nominations(month, year) do
     {start_datetime, end_datetime} = start_end_from(month, year)
+
     query = from nom in Nomination,
       left_join: yv in subquery(yes_vote_count_subquery()),
       on: yv.nomination_id == nom.id,
@@ -64,6 +65,36 @@ defmodule CharityCrowd.Grants do
 
     Repo.all(query)
       #|> Repo.preload([:member, :votes])
+  end
+
+  def calculate_percentages!(nominations) do
+    filtered = Enum.filter(nominations, fn nom -> (nom.yes_vote_count||0) > (nom.no_vote_count||0) end)
+
+    total_y = filtered
+      |> Enum.map(fn nom -> nom.yes_vote_count || 0 end)
+      |> Enum.reduce(&+/2)
+
+    total_n = filtered
+    |> Enum.map(fn nom -> nom.no_vote_count || 0 end)
+    |> Enum.reduce(&+/2)
+
+    Enum.each(nominations, fn(nomination) ->
+      y = nomination.yes_vote_count || 0
+      n = nomination.no_vote_count || 0
+
+      pct =
+      if y > n do
+        (1.0 * y - n)/(total_y - total_n)
+      else
+        0
+      end
+
+      #TODO: Optimize - this part is very slow (2N queries for N nominations)
+      #We need to do this b/c update_nomination expects a %Nomination{}
+      {:ok, _} =
+        get_nomination!(nomination.id)
+        |> update_nomination(%{percentage: pct})
+    end)
   end
 
   @doc """

@@ -16,8 +16,8 @@ defmodule CharityCrowd.Fixtures do
     member = assoc[:member] || fixture_member()
     attrs = %{
       member_id: member.id,
-      name: "Fixtures for Ecto",
-      pitch: "Fixtures for Ecto"
+      name: "Charity",
+      pitch: "This is a charity"
     }
     {:ok, nomination} = Grants.create_nomination(attrs)
 
@@ -42,12 +42,12 @@ defmodule CharityCrowd.Fixtures do
     Grants.get_vote!(member.id, nomination.id)
   end
 
-    def fixture_invite_code(attrs \\ %{}) do
-      {:ok, invite_code} =
-        attrs
-        |> Enum.into(%{code: "AAAAAA", active: true})
-        |> Accounts.create_invite_code()
+  def fixture_invite_code(attrs \\ %{}) do
+    {:ok, invite_code} =
+      attrs
+      |> Enum.into(%{code: "AAAAAA", active: true})
+      |> Accounts.create_invite_code()
 
-      invite_code
-    end
+    invite_code
+  end
 end

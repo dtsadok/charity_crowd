@@ -19,7 +19,7 @@ defmodule CharityCrowd.Grants.Nomination do
   @doc false
   def changeset(nomination, attrs) do
     nomination
-    |> cast(attrs, [:member_id, :name, :pitch])
+    |> cast(attrs, [:member_id, :name, :pitch, :percentage])
     |> validate_required([:member_id, :name, :pitch])
     |> foreign_key_constraint(:member_id)
   end
