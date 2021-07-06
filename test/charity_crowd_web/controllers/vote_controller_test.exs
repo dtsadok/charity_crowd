@@ -28,7 +28,6 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
 
-    #it's the test
     test "does not allow me to double-vote", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
