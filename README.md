@@ -1,9 +1,9 @@
 # CharityCrowd
 
-Create databases:
+Create databases
   * `createdb charity_crowd_dev`
   * `createdb charity_crowd_test`
-  * In postgres: `CREATE USER charity_crowd WITH PASSWORD 'charity_crowd';`
+  * In postgres: `CREATE USER charity_crowd WITH PASSWORD '...change this to your password...';`
   * `GRANT ALL ON DATABASE charity_crowd_dev TO charity_crowd;`
   * `GRANT ALL ON DATABASE charity_crowd_test TO charity_crowd;`
 
