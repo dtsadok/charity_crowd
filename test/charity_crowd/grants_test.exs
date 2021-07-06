@@ -30,6 +30,23 @@ defmodule CharityCrowd.GrantsTest do
       assert nomination_with_votes.vote_value == vote.value
     end
 
+    test "filter_nominations/1 only returns nominations where Y > N" do
+      member = fixture_member("member", "member@example.com")
+      nomination = fixture_nomination(member: member)
+      fixture_vote(%{member: member, nomination: nomination}, :N)
+
+      #load from DB so we have vote counts
+      {:ok, now} = Calendar.DateTime.now("America/New_York")
+      nominations = Grants.list_nominations(now.month, now.year)
+
+      assert nominations != []
+      assert Grants.filter_nominations(nominations) == []
+    end
+
+    test "calculate_percentages/1 with empty list does nothing" do
+      Grants.calculate_percentages!([])
+    end
+
     test "calculate_percentages/1 sets the percentage for each nomination" do
       member1 = fixture_member("member1", "member1@example.com")
       member2 = fixture_member("member2", "member2@example.com")
@@ -60,9 +77,9 @@ defmodule CharityCrowd.GrantsTest do
 
       #load from DB so we have vote counts
       {:ok, now} = Calendar.DateTime.now("America/New_York")
-      nominations = Grants.list_nominations(now.month, now.year)
-
-      Grants.calculate_percentages!(nominations)
+      Grants.list_nominations(now.month, now.year)
+      |> Grants.filter_nominations
+      |> Grants.calculate_percentages!
 
       nomination1 = Grants.get_nomination! nomination1.id
       nomination2 = Grants.get_nomination! nomination2.id

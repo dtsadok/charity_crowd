@@ -67,32 +67,51 @@ defmodule CharityCrowd.Grants do
       #|> Repo.preload([:member, :votes])
   end
 
-  def calculate_percentages!(nominations) do
-    filtered = Enum.filter(nominations,
+  #remove any nominations where no votes >= yes votes
+  def filter_nominations(nominations) do
+    Enum.filter(nominations,
       fn nom -> (nom.yes_vote_count||0) > (nom.no_vote_count||0) end)
+  end
 
-    if !Enum.empty?(filtered) do
-      total_yes_votes = filtered
-        |> Enum.map(fn nom -> nom.yes_vote_count || 0 end)
-        |> Enum.reduce(&+/2)
+  def calculate_percentages!(nominations) do
+    filtered = nominations |> filter_nominations
 
-      total_no_votes = filtered
-        |> Enum.map(fn nom -> nom.no_vote_count || 0 end)
-        |> Enum.reduce(&+/2)
-
-      Enum.each(filtered, fn(nomination) ->
-        y = nomination.yes_vote_count || 0
-        n = nomination.no_vote_count || 0
-
-        pct = (1.0 * y - n)/(total_yes_votes - total_no_votes)
-
-        #TODO: Optimize - this part is very slow (2N queries for N nominations)
-        #We can't just call update_nomination b/c it expects a %Nomination{}
-        {:ok, _} =
-          get_nomination!(nomination.id)
-            |> update_nomination(%{percentage: pct})
-      end)
+    total_yes_votes =
+    if filtered != [] do
+      filtered
+      |> Enum.map(fn nom -> nom.yes_vote_count || 0 end)
+      |> Enum.reduce(&+/2)
+    else
+      0
     end
+
+    total_no_votes =
+    if filtered != [] do
+      filtered
+      |> Enum.map(fn nom -> nom.no_vote_count || 0 end)
+      |> Enum.reduce(&+/2)
+    else
+      0
+    end
+
+    Enum.each(nominations, fn(nomination) ->
+      y = nomination.yes_vote_count || 0
+      n = nomination.no_vote_count || 0
+
+      pct = if (nomination.yes_vote_count||0) > (nomination.no_vote_count||0) do
+        (1.0 * y - n)/(total_yes_votes - total_no_votes)
+      else
+        0.0
+      end
+
+      #TODO: Optimize - this part is very slow (2N queries for N nominations)
+      #We can't just call update_nomination b/c it expects a %Nomination{}
+      {:ok, _} =
+        get_nomination!(nomination.id)
+          |> update_nomination(%{percentage: pct})
+    end)
+
+    nominations
   end
 
   @doc """

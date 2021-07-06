@@ -1,6 +1,7 @@
 defmodule CharityCrowdWeb.VoteControllerTest do
   use CharityCrowdWeb.ConnCase
   import CharityCrowd.Fixtures
+  alias CharityCrowd.Grants
 
   @invalid_attrs %{nomination_id: 42, value: :Z}
 
@@ -31,11 +32,28 @@ defmodule CharityCrowdWeb.VoteControllerTest do
     test "does not allow me to double-vote", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
+
       vote = fixture_vote(member: member, nomination: nomination, value: :Y)
 
       conn = login_as conn, member
       conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: vote.nomination_id, value: :Y})
       assert html_response(conn, 422) =~ "invalid"
+    end
+
+    test "updates nomination percentage", %{conn: conn} do
+      member = fixture_member()
+      nomination = fixture_nomination(member: member)
+
+      conn = login_as conn, member
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
+      assert redirected_to(conn) == Routes.nomination_path(conn, :show, nomination.id)
+
+      nomination = Grants.get_nomination! nomination.id
+      assert nomination.percentage == 1.0
+    end
+
+    test "cannot vote on an old nomination", %{conn: _conn} do
+      flunk()
     end
   end
 
@@ -54,6 +72,22 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       assert_raise Ecto.NoResultsError, fn ->
         delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
       end
+    end
+
+    test "cannot delete vote on old nomination", %{conn: _conn, vote: _vote} do
+      flunk()
+    end
+
+    test "updates nomination percentage", %{conn: conn, vote: vote} do
+      {:ok, _nomination} = Grants.update_nomination vote.nomination, %{percentage: 1.0}
+
+      conn = login_as conn, vote.member
+      conn = delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
+
+      assert redirected_to(conn) == Routes.nomination_path(conn, :index)
+
+      nomination = Grants.get_nomination! vote.nomination_id
+      assert nomination.percentage == 0.0
     end
   end
 
