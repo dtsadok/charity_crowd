@@ -9,3 +9,5 @@
 #
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
+
+CharityCrowd.Repo.insert!(%CharityCrowd.Endowment.Balance{amount_cents: 1000_00})
