@@ -4,6 +4,7 @@ defmodule CharityCrowd.Endowment.Balance do
 
   schema "balances" do
     field :amount_cents, :integer
+    field :date, :date
 
     timestamps()
   end
@@ -11,7 +12,7 @@ defmodule CharityCrowd.Endowment.Balance do
   @doc false
   def changeset(balance, attrs) do
     balance
-    |> cast(attrs, [:amount_cents])
-    |> validate_required([:amount_cents])
+    |> cast(attrs, [:amount_cents, :date])
+    |> validate_required([:amount_cents, :date])
   end
 end

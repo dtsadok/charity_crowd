@@ -10,7 +10,7 @@ defmodule CharityCrowd.Endowment do
 
   def get_last_balance do
     query = from b in Balance,
-      order_by: [desc: :inserted_at],
+      order_by: [desc: :date],
       limit: 1
 
     Repo.one(query)

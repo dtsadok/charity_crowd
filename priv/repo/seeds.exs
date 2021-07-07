@@ -10,4 +10,5 @@
 # We recommend using the bang functions (`insert!`, `update!`
 # and so on) as they will fail if something goes wrong.
 
-CharityCrowd.Repo.insert!(%CharityCrowd.Endowment.Balance{amount_cents: 1000_00})
+today = Calendar.Date.today!("America/New_York")
+CharityCrowd.Repo.insert!(%CharityCrowd.Endowment.Balance{amount_cents: 1000_00, date: today})
