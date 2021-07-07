@@ -6,9 +6,8 @@ defmodule CharityCrowd.EndowmentTest do
   describe "balances" do
     alias CharityCrowd.Endowment.Balance
 
-    @valid_attrs %{amount_cents: 4200}
-    @update_attrs %{amount_cents: 4300}
-    @invalid_attrs %{amount_cents: nil}
+    @valid_attrs %{amount_cents: 4200, date: ~D[2021-07-03]}
+    @invalid_attrs %{amount_cents: nil, date: nil}
 
     def balance_fixture(attrs \\ %{}) do
       {:ok, balance} =
@@ -45,24 +44,6 @@ defmodule CharityCrowd.EndowmentTest do
 
     test "create_balance/1 with invalid data returns error changeset" do
       assert {:error, %Ecto.Changeset{}} = Endowment.create_balance(@invalid_attrs)
-    end
-
-    test "update_balance/2 with valid data updates the balance" do
-      balance = balance_fixture()
-      assert {:ok, %Balance{} = balance} = Endowment.update_balance(balance, @update_attrs)
-      assert balance.amount_cents == 4300
-    end
-
-    test "update_balance/2 with invalid data returns error changeset" do
-      balance = balance_fixture()
-      assert {:error, %Ecto.Changeset{}} = Endowment.update_balance(balance, @invalid_attrs)
-      assert balance == Endowment.get_balance!(balance.id)
-    end
-
-    test "delete_balance/1 deletes the balance" do
-      balance = balance_fixture()
-      assert {:ok, %Balance{}} = Endowment.delete_balance(balance)
-      assert_raise Ecto.NoResultsError, fn -> Endowment.get_balance!(balance.id) end
     end
 
     test "change_balance/1 returns a balance changeset" do

@@ -64,40 +64,6 @@ defmodule CharityCrowd.Endowment do
   end
 
   @doc """
-  Updates a balance.
-
-  ## Examples
-
-      iex> update_balance(balance, %{field: new_value})
-      {:ok, %Balance{}}
-
-      iex> update_balance(balance, %{field: bad_value})
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def update_balance(%Balance{} = balance, attrs) do
-    balance
-    |> Balance.changeset(attrs)
-    |> Repo.update()
-  end
-
-  @doc """
-  Deletes a balance.
-
-  ## Examples
-
-      iex> delete_balance(balance)
-      {:ok, %Balance{}}
-
-      iex> delete_balance(balance)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_balance(%Balance{} = balance) do
-    Repo.delete(balance)
-  end
-
-  @doc """
   Returns an `%Ecto.Changeset{}` for tracking balance changes.
 
   ## Examples
