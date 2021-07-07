@@ -19,6 +19,15 @@ defmodule CharityCrowd.EndowmentTest do
       balance
     end
 
+    test "get_last_balance/0 returns most recent balance" do
+      #make this balance older
+      balance_fixture(%{amount_cents: 1000})
+      Process.sleep(500)
+      balance_fixture(%{amount_cents: 2000})
+      b = Endowment.get_last_balance()
+      assert b.amount_cents == 2000
+    end
+
     test "list_balances/0 returns all balances" do
       balance = balance_fixture()
       assert Endowment.list_balances() == [balance]

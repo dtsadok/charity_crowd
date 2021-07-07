@@ -8,6 +8,14 @@ defmodule CharityCrowd.Endowment do
 
   alias CharityCrowd.Endowment.Balance
 
+  def get_last_balance do
+    query = from b in Balance,
+      order_by: [desc: :inserted_at],
+      limit: 1
+
+    Repo.one(query)
+  end
+
   @doc """
   Returns the list of balances.
 
