@@ -3,6 +3,7 @@
 defmodule CharityCrowd.Fixtures do
   alias CharityCrowd.Accounts
   alias CharityCrowd.Grants
+  alias CharityCrowd.Endowment
 
   def fixture_member(nickname \\ "daniel", email \\ "daniel@example.com") do
     {:ok, member} = %{nickname: nickname, email: email, password: "1234"}
@@ -49,5 +50,14 @@ defmodule CharityCrowd.Fixtures do
       |> Accounts.create_invite_code()
 
     invite_code
+  end
+
+  def fixture_balance(amount_cents \\ 100_000_00, date \\ nil) do
+      date = date || Calendar.Date.today!("America/New_York")
+      {:ok, balance} =
+        %{amount_cents: amount_cents, date: date}
+        |> Endowment.create_balance()
+
+      balance
   end
 end
