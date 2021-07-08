@@ -64,7 +64,8 @@ defmodule CharityCrowd.Endowment do
   def get_balance!(id), do: Repo.get!(Balance, id)
 
   @doc """
-  Creates a balance.
+  Creates a balance.  Naive local time expected (i.e. "midnight" should be local midnight).
+  N.B. For now a new balance should only be created when a voting period ends and a new one is about to begin, since the list of nominations uses balance dates as the boundary.  That's the primary purpose of the Balance model.
 
   ## Examples
 
@@ -94,11 +95,12 @@ defmodule CharityCrowd.Endowment do
     Balance.changeset(balance, attrs)
   end
 
-  def period_start_end_for(date) do
-    tz = "America/New_York" #TODO: Globalize 
-    today = Calendar.Date.today! tz
+  def voting_period_for(date) do
+    #TODO: Globalize
+    tz = "America/New_York"
+    today = Calendar.Date.today!(tz)
     tomorrow = Calendar.Date.next_day! today
-    prev_balance = get_prev_balance_for(date) || get_last_balance!()
+    prev_balance = get_prev_balance_for(date) || get_last_balance!() #if date is prior to last balance date
     next_balance = get_next_balance_for(date)
     start_date = prev_balance.date
     end_date = if next_balance do
@@ -109,6 +111,10 @@ defmodule CharityCrowd.Endowment do
 
     start_datetime = Calendar.DateTime.from_date_and_time_and_zone!(start_date, ~T[00:00:00], tz)
     end_datetime = Calendar.DateTime.from_date_and_time_and_zone!(end_date, ~T[00:00:00], tz)
+
+    #now shift time zone to UTC so it matches nomination timestamps
+    start_datetime = Calendar.DateTime.shift_zone!(start_datetime, "UTC")
+    end_datetime = Calendar.DateTime.shift_zone!(end_datetime, "UTC")
 
     {start_datetime, end_datetime}
   end

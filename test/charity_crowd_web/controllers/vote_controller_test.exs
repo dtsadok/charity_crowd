@@ -6,6 +6,8 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   @invalid_attrs %{nomination_id: 42, value: :Z}
 
   describe "create vote" do
+    setup [:create_balance]
+
     test "with login redirects to nominations when data is valid", %{conn: conn} do
       conn = login_as conn, fixture_member()
       nomination = fixture_nomination()
@@ -58,7 +60,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   end
 
   describe "delete vote" do
-    setup [:create_vote]
+    setup [:create_vote, :create_balance]
 
     test "when owner deletes chosen vote", %{conn: conn, vote: vote} do
       conn = login_as conn, vote.member
@@ -94,5 +96,10 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   defp create_vote(_) do
     vote = fixture_vote()
     %{vote: vote}
+  end
+
+  defp create_balance(_) do
+    balance = fixture_balance()
+    %{balance: balance}
   end
 end

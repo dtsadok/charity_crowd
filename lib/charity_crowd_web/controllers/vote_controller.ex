@@ -11,9 +11,8 @@ defmodule CharityCrowdWeb.VoteController do
     case Grants.create_vote(vote_params) do
       {:ok, vote} ->
         #TODO: Globalize
-        {:ok, now} = Calendar.DateTime.now("America/New_York")
-
-        Grants.list_nominations(now.month, now.year)
+        Calendar.Date.today!("America/New_York")
+        |> Grants.list_nominations
         |> Grants.calculate_percentages!
 
         conn
@@ -28,15 +27,15 @@ defmodule CharityCrowdWeb.VoteController do
   end
 
   def delete(conn, %{"id" => nomination_id}) do
-    #TODO: DB Transaction
     member_id = conn.assigns[:current_member].id
+
+    #TODO: DB Transaction
     vote = Grants.get_vote!(member_id, nomination_id)
     {:ok, _vote} = Grants.delete_vote(vote)
 
     #TODO: Globalize
-    {:ok, now} = Calendar.DateTime.now("America/New_York")
-
-    Grants.list_nominations(now.month, now.year)
+    Calendar.Date.today!("America/New_York")
+    |> Grants.list_nominations
     |> Grants.calculate_percentages!
 
     conn

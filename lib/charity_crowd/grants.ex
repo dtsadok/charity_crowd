@@ -8,6 +8,7 @@ defmodule CharityCrowd.Grants do
 
   alias CharityCrowd.Grants.Nomination
   alias CharityCrowd.Grants.Vote
+  alias CharityCrowd.Endowment
 
   #inspired by https://medium.com/@eric.programmer/the-sql-alternative-to-counter-caches-59e2098b7d7
   def vote_count_subquery do
@@ -27,17 +28,21 @@ defmodule CharityCrowd.Grants do
     from v in vote_count_subquery(), where: v.value == :N
   end
 
+  def list_all_nominations do
+    Repo.all(Nomination)
+  end
+
   @doc """
-  Returns the list of nominations.
+  Returns the list of nominations for a given date (very likely today).
 
   ## Examples
 
-      iex> list_nominations(month, year)
+      iex> list_nominations(date)
       [%Nomination{}, ...]
 
   """
-  def list_nominations(month, year) do
-    {start_datetime, end_datetime} = start_end_from(month, year)
+  def list_nominations(date) do
+    {start_datetime, end_datetime} = Endowment.voting_period_for(date)
 
     query = from nom in Nomination,
       left_join: yv in subquery(yes_vote_count_subquery()),
@@ -50,8 +55,8 @@ defmodule CharityCrowd.Grants do
       #|> Repo.preload([:member, :votes])
   end
 
-  def list_nominations_with_votes_by(member, month, year) do
-    {start_datetime, end_datetime} = start_end_from(month, year)
+  def list_nominations_with_votes_by(member, date) do
+    {start_datetime, end_datetime} = Endowment.voting_period_for(date)
 
     query = from nom in Nomination,
       left_join: yv in subquery(yes_vote_count_subquery()),
@@ -267,18 +272,5 @@ defmodule CharityCrowd.Grants do
   """
   def delete_vote(%Vote{} = vote) do
     Repo.delete(vote)
-  end
-
-  defp start_end_from(month, year) do
-    {:ok, start_date} = Date.new(year, month, 1)
-    days = Date.days_in_month(start_date)
-    #calculate first of next month
-    end_date = Date.add(start_date, days+1)
-    #TODO: Globalize
-    tz = "America/New_York"
-    start_datetime = Calendar.DateTime.from_date_and_time_and_zone!(start_date, ~T[00:00:00], tz)
-    end_datetime = Calendar.DateTime.from_date_and_time_and_zone!(end_date, ~T[00:00:00], tz)
-
-    {start_datetime, end_datetime}
   end
 end

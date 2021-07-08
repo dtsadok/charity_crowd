@@ -3,18 +3,27 @@ defmodule CharityCrowdWeb.NominationController do
 
   alias CharityCrowd.Grants
   alias CharityCrowd.Grants.Nomination
+  alias CharityCrowd.Endowment
 
   def index(conn, params) do
     current_member = conn.assigns[:current_member]
+    last_balance = Endowment.get_last_balance!()
+
     #TODO: Globalize
-    {:ok, now} = Calendar.DateTime.now("America/New_York")
-    month = params[:month] || now.month
-    year = params[:year] || now.year
+    today = Calendar.Date.today!("America/New_York")
+    #month = params[:month] || today.month
+    #year = params[:year] || today.year
+
+    date = today #for now
+
+    archived = date < last_balance.date #<= ?
+
     nominations = case current_member do
-      nil -> Grants.list_nominations(month, year)
-      _ -> Grants.list_nominations_with_votes_by(current_member, month, year)
+      nil -> Grants.list_nominations(date)
+      _ -> Grants.list_nominations_with_votes_by(current_member, date)
     end
-    render(conn, "index.html", current_member: current_member, now: now, month: month, year: year, nominations: nominations)
+
+    render(conn, "index.html", current_member: current_member, archived: archived, nominations: nominations)
   end
 
   def new(conn, _params) do

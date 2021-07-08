@@ -11,21 +11,23 @@ defmodule CharityCrowd.GrantsTest do
     @update_attrs %{name: "some updated name", pitch: "some updated pitch", percentage: 0.42}
     @invalid_attrs %{name: nil, pitch: nil}
 
-    test "list_nominations/2 returns nominations for given month" do
+    setup [:create_balance]
+
+    test "list_nominations/1 returns nominations for given date" do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
 
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      assert Grants.list_nominations(now.month, now.year) == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
+      today = Calendar.Date.today!("America/New_York")
+      assert Grants.list_nominations(today) == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
     end
 
-    test "list_nominations_with_votes_by/3 returns nominations for given month with votes by given member" do
+    test "list_nominations_with_votes_by/2 returns nominations for given date with votes by given member" do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
       vote = fixture_vote(member: member, nomination: nomination, value: :N)
 
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      nomination_with_votes = Grants.list_nominations_with_votes_by(member, now.month, now.year) |> hd
+      today = Calendar.Date.today!("America/New_York")
+      nomination_with_votes = Grants.list_nominations_with_votes_by(member, today) |> hd
       assert nomination_with_votes.id == nomination.id
       assert nomination_with_votes.vote_value == vote.value
     end
@@ -36,8 +38,8 @@ defmodule CharityCrowd.GrantsTest do
       fixture_vote(%{member: member, nomination: nomination}, :N)
 
       #load from DB so we have vote counts
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      nominations = Grants.list_nominations(now.month, now.year)
+      today = Calendar.Date.today!("America/New_York")
+      nominations = Grants.list_nominations today
 
       assert nominations != []
       assert Grants.filter_nominations(nominations) == []
@@ -76,8 +78,8 @@ defmodule CharityCrowd.GrantsTest do
       fixture_vote(%{member: member3, nomination: nomination4}, :Y)
 
       #load from DB so we have vote counts
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      Grants.list_nominations(now.month, now.year)
+      today = Calendar.Date.today!("America/New_York")
+      Grants.list_nominations(today)
       |> Grants.filter_nominations
       |> Grants.calculate_percentages!
 
@@ -146,6 +148,8 @@ defmodule CharityCrowd.GrantsTest do
     @valid_attrs %{member_id: 42, nomination_id: 42, value: :N}
     @invalid_attrs %{member_id: 42, nomination_id: 42, value: :n}
 
+    setup [:create_balance]
+
     test "list_votes/0 returns all votes" do
       vote = fixture_vote()
       assert Grants.list_votes() == [vote]
@@ -178,8 +182,8 @@ defmodule CharityCrowd.GrantsTest do
       fixture_vote(%{member: member3, nomination: nomination}, :Y)
       fixture_vote(%{member: member4, nomination: nomination}, :N)
 
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      nominations = Grants.list_nominations(now.month, now.year)
+      today = Calendar.Date.today!("America/New_York")
+      nominations = Grants.list_nominations today
 
       assert hd(nominations).yes_vote_count == 3
       assert hd(nominations).no_vote_count == 1
@@ -189,8 +193,8 @@ defmodule CharityCrowd.GrantsTest do
       member = fixture_member("voter", "voter@example.com")
       _vote = fixture_vote(%{member: member}, :N)
 
-      {:ok, now} = Calendar.DateTime.now("America/New_York")
-      nominations = Grants.list_nominations(now.month, now.year)
+      today = Calendar.Date.today!("America/New_York")
+      nominations = Grants.list_nominations today
 
       assert hd(nominations).yes_vote_count == nil
       assert hd(nominations).no_vote_count == 1
@@ -206,5 +210,10 @@ defmodule CharityCrowd.GrantsTest do
     #  vote = fixture_vote()
     #  assert %Ecto.Changeset{} = Grants.change_vote(vote)
     #end
+  end
+
+  defp create_balance(_) do
+    balance = fixture_balance()
+    %{balance: balance}
   end
 end

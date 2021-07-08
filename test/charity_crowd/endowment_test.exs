@@ -40,7 +40,7 @@ defmodule CharityCrowd.EndowmentTest do
       assert b.amount_cents == 2000
     end
 
-    test "period_start_end_for/1 returns correct times" do
+    test "voting_period_for/1 returns correct times" do
       tz = "America/New_York"
       today = Calendar.Date.today! tz
       yesterday = Calendar.Date.next_day! today
@@ -51,7 +51,7 @@ defmodule CharityCrowd.EndowmentTest do
       correct_start = Calendar.DateTime.from_date_and_time_and_zone!(yesterday, ~T[00:00:00], tz)
       correct_end = Calendar.DateTime.from_date_and_time_and_zone!(tomorrow, ~T[00:00:00], tz)
 
-      assert {correct_start, correct_end} == Endowment.period_start_end_for(today)
+      assert {correct_start, correct_end} == Endowment.voting_period_for(today)
     end
 
     test "list_balances/0 returns all balances" do

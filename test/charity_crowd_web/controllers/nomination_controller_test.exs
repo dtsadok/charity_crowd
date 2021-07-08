@@ -7,6 +7,8 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   @invalid_attrs %{name: nil, pitch: nil}
 
   describe "index" do
+    setup [:create_balance]
+
     test "lists all nominations", %{conn: conn} do
       conn = get(conn, Routes.nomination_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Nominations"
@@ -20,6 +22,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   describe "index with month/year" do
+    setup [:create_balance]
     test "lists all nominations", %{conn: conn} do
       conn = get(conn, Routes.nomination_path(conn, :index), %{month: 1, year: 2021})
       assert html_response(conn, 200) =~ "Listing Nominations"
@@ -27,6 +30,8 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   describe "index with existing vote" do
+    setup [:create_balance]
+
     test "allows me to withdraw vote when logged in as voter", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
@@ -166,5 +171,10 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     member = fixture_member()
     nomination = fixture_nomination(member: member)
     %{nomination: nomination}
+  end
+
+  defp create_balance(_) do
+    balance = fixture_balance()
+    %{balance: balance}
   end
 end
