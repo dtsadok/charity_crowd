@@ -119,11 +119,11 @@ defmodule CharityCrowd.Grants do
     nominations
   end
 
-  def archived?(nomination = %Nomination{}) do
+  def current?(nomination = %Nomination{}) do
     last_balance = Endowment.get_last_balance!()
 
     nomination_date = Calendar.NaiveDateTime.to_date(nomination.inserted_at)
-    nomination_date < last_balance.date
+    nomination_date >= last_balance.date
   end
 
   @doc """
@@ -269,7 +269,7 @@ defmodule CharityCrowd.Grants do
 
     nomination = nomination_id && get_nomination!(nomination_id)
 
-    if nomination && archived?(nomination) do
+    if nomination && !current?(nomination) do
       {:error, "Cannot vote on archived nomination."}
     else
       %Vote{}
