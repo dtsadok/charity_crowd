@@ -3,8 +3,6 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   import CharityCrowd.Fixtures
   alias CharityCrowd.Grants
 
-  @invalid_attrs %{nomination_id: 42, value: :Z}
-
   describe "create vote" do
     setup [:create_balance]
 
@@ -22,12 +20,14 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
     test "with login renders errors when data is invalid", %{conn: conn} do
       conn = login_as conn, fixture_member()
-      conn = post(conn, Routes.vote_path(conn, :create), vote: @invalid_attrs)
+      nomination = fixture_nomination()
+      invalid_attrs = %{nomination_id: nomination.id, value: :Z}
+      conn = post(conn, Routes.vote_path(conn, :create), vote: invalid_attrs)
       assert html_response(conn, 422) =~ "invalid"
     end
 
     test "with no login redirects to login page", %{conn: conn} do
-      conn = post(conn, Routes.vote_path(conn, :create), vote: @invalid_attrs)
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{})
       assert redirected_to(conn) == Routes.session_path(conn, :new)
     end
 
@@ -54,13 +54,22 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       assert nomination.percentage == 1.0
     end
 
-    test "cannot vote on an old nomination", %{conn: _conn} do
-      flunk()
+    test "fails on an old nomination", %{conn: conn} do
+      #set last Balance in the future so nomination will be archived
+      today = Calendar.Date.today_utc
+      tomorrow = Calendar.Date.next_day! today
+      fixture_balance(1000, tomorrow)
+
+      conn = login_as conn, fixture_member()
+      nomination = fixture_nomination()
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
+
+      assert html_response(conn, 422) =~ "invalid"
     end
   end
 
   describe "delete vote" do
-    setup [:create_vote, :create_balance]
+    setup [:create_balance, :create_vote]
 
     test "when owner deletes chosen vote", %{conn: conn, vote: vote} do
       conn = login_as conn, vote.member

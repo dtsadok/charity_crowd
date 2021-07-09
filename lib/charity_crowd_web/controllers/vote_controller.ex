@@ -19,7 +19,7 @@ defmodule CharityCrowdWeb.VoteController do
         |> put_flash(:info, "Vote counted successfully.")
         |> redirect(to: Routes.nomination_path(conn, :show, vote.nomination_id))
 
-      {:error, %Ecto.Changeset{} = _changeset} ->
+      {:error, _} ->
         conn
         |> put_resp_content_type("text/html")
         |> send_resp(422, "Vote data invalid.")

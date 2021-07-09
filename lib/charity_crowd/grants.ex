@@ -253,9 +253,21 @@ defmodule CharityCrowd.Grants do
 
   """
   def create_vote(attrs \\ %{}) do
-    %Vote{}
-    |> Vote.changeset(attrs)
-    |> Repo.insert()
+    last_balance = Endowment.get_last_balance!()
+
+    nomination = 
+    if Map.has_key?(attrs, "nomination_id") do
+      get_nomination!(attrs["nomination_id"])
+    end
+
+    nomination_date = nomination && Calendar.NaiveDateTime.to_date(nomination.inserted_at)
+    if nomination_date && nomination_date < last_balance.date do
+      {:error, "Cannot vote on archived nomination."}
+    else
+      %Vote{}
+      |> Vote.changeset(attrs)
+      |> Repo.insert()
+    end
   end
 
   @doc """

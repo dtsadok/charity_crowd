@@ -145,9 +145,6 @@ defmodule CharityCrowd.GrantsTest do
   describe "votes" do
     alias CharityCrowd.Grants.Vote
 
-    @valid_attrs %{member_id: 42, nomination_id: 42, value: :N}
-    @invalid_attrs %{member_id: 42, nomination_id: 42, value: :n}
-
     setup [:create_balance]
 
     test "list_votes/0 returns all votes" do
@@ -161,13 +158,29 @@ defmodule CharityCrowd.GrantsTest do
     end
 
     test "create_vote/1 with valid data creates a vote" do
-      assert {:ok, %Vote{} = vote} = Grants.create_vote(@valid_attrs)
-      assert vote.member_id == 42
-      assert vote.nomination_id == 42
+      nomination = fixture_nomination()
+
+      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
+      assert {:ok, %Vote{} = vote} = Grants.create_vote(attrs)
+      assert vote.member_id == nomination.member_id
+      assert vote.nomination_id == nomination.id
     end
 
     test "create_vote/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Grants.create_vote(@invalid_attrs)
+      nomination = fixture_nomination()
+      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Z}
+      assert {:error, %Ecto.Changeset{}} = Grants.create_vote(attrs)
+    end
+
+    test "create_vote/1 with archived nomination returns error" do
+      #set last Balance in the future so nomination will be considered archived
+      today = Calendar.Date.today_utc
+      tomorrow = Calendar.Date.next_day! today
+      fixture_balance(1000, tomorrow)
+
+      nomination = fixture_nomination()
+      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
+      assert {:error, _} = Grants.create_vote(attrs)
     end
 
     test "voting sets nomination vote_counts" do
