@@ -94,6 +94,23 @@ defmodule CharityCrowd.GrantsTest do
       assert nomination4.percentage == 0
     end
 
+    test "archived? returns false if balance.date <= nomination.date" do
+      nomination = fixture_nomination()
+
+      assert !Grants.archived?(nomination)
+    end
+
+    test "archived? returns true if balance.date > nomination.date" do
+      #set last Balance in the future so nomination will be considered archived
+      today = Calendar.Date.today_utc
+      tomorrow = Calendar.Date.next_day! today
+      fixture_balance(1000, tomorrow)
+
+      nomination = fixture_nomination()
+
+      assert Grants.archived?(nomination)
+    end
+
     test "get_nomination!/1 returns the nomination with given id" do
       nomination = fixture_nomination()
       assert Grants.get_nomination!(nomination.id) == %{nomination | percentage: 0}
@@ -179,8 +196,11 @@ defmodule CharityCrowd.GrantsTest do
       fixture_balance(1000, tomorrow)
 
       nomination = fixture_nomination()
-      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
-      assert {:error, _} = Grants.create_vote(attrs)
+      valid_attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
+
+      assert Grants.archived?(nomination)
+
+      assert {:error, _} = Grants.create_vote(valid_attrs)
     end
 
     test "voting sets nomination vote_counts" do

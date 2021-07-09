@@ -119,6 +119,13 @@ defmodule CharityCrowd.Grants do
     nominations
   end
 
+  def archived?(nomination = %Nomination{}) do
+    last_balance = Endowment.get_last_balance!()
+
+    nomination_date = Calendar.NaiveDateTime.to_date(nomination.inserted_at)
+    nomination_date < last_balance.date
+  end
+
   @doc """
   Gets a single nomination.
 
@@ -253,15 +260,16 @@ defmodule CharityCrowd.Grants do
 
   """
   def create_vote(attrs \\ %{}) do
-    last_balance = Endowment.get_last_balance!()
-
-    nomination = 
-    if Map.has_key?(attrs, "nomination_id") do
-      get_nomination!(attrs["nomination_id"])
+    #TODO: fix this up
+    nomination_id =
+    cond do
+      Map.has_key?(attrs, "nomination_id") -> attrs["nomination_id"]
+      Map.has_key?(attrs, :nomination_id) -> attrs.nomination_id
     end
 
-    nomination_date = nomination && Calendar.NaiveDateTime.to_date(nomination.inserted_at)
-    if nomination_date && nomination_date < last_balance.date do
+    nomination = nomination_id && get_nomination!(nomination_id)
+
+    if nomination && archived?(nomination) do
       {:error, "Cannot vote on archived nomination."}
     else
       %Vote{}
