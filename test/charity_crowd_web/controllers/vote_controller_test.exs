@@ -85,8 +85,17 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       end
     end
 
-    test "cannot delete vote on old nomination", %{conn: _conn, vote: _vote} do
-      flunk()
+    test "cannot delete vote on old nomination", %{conn: conn, vote: vote} do
+      #set last Balance in the future so nomination will be archived
+      today = Calendar.Date.today_utc
+      tomorrow = Calendar.Date.next_day! today
+      fixture_balance(1000, tomorrow)
+
+      conn = login_as conn, vote.member
+      conn = delete(conn, Routes.vote_path(conn, :delete, vote.nomination_id))
+
+      assert html_response(conn, 422)
+      assert Grants.get_vote!(vote.member_id, vote.nomination_id)
     end
 
     test "updates nomination percentage", %{conn: conn, vote: vote} do

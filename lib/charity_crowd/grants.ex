@@ -291,6 +291,10 @@ defmodule CharityCrowd.Grants do
 
   """
   def delete_vote(%Vote{} = vote) do
-    Repo.delete(vote)
+    if !current?(vote.nomination) do
+      {:error, "Cannot withdraw vote from archived nomination."}
+    else
+      Repo.delete(vote)
+    end
   end
 end

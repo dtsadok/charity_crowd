@@ -239,6 +239,19 @@ defmodule CharityCrowd.GrantsTest do
       assert_raise Ecto.NoResultsError, fn -> Grants.get_vote!(vote.member_id, vote.nomination_id) end
     end
 
+    test "cannot delete vote if nomination is not current" do
+      #create vote before nomination is archived
+      vote = fixture_vote()
+
+      #set last Balance in the future so nomination will be considered archived
+      today = Calendar.Date.today_utc
+      tomorrow = Calendar.Date.next_day! today
+      fixture_balance(1000, tomorrow)
+
+      assert {:error, _} = Grants.delete_vote(vote)
+      assert Grants.get_vote!(vote.member_id, vote.nomination_id)
+    end
+
     #test "change_vote/1 returns a vote changeset" do
     #  vote = fixture_vote()
     #  assert %Ecto.Changeset{} = Grants.change_vote(vote)

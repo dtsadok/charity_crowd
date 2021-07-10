@@ -31,15 +31,21 @@ defmodule CharityCrowdWeb.VoteController do
 
     #TODO: DB Transaction
     vote = Grants.get_vote!(member_id, nomination_id)
-    {:ok, _vote} = Grants.delete_vote(vote)
+    case Grants.delete_vote(vote) do
+      {:ok, _vote} ->
+        #TODO: Globalize
+        Calendar.Date.today!("America/New_York")
+        |> Grants.list_nominations
+        |> Grants.calculate_percentages!
 
-    #TODO: Globalize
-    Calendar.Date.today!("America/New_York")
-    |> Grants.list_nominations
-    |> Grants.calculate_percentages!
+        conn
+        |> put_flash(:info, "Vote withdrawn successfully.")
+        |> redirect(to: Routes.nomination_path(conn, :index))
 
-    conn
-    |> put_flash(:info, "Vote withdrawn successfully.")
-    |> redirect(to: Routes.nomination_path(conn, :index))
+      {:error, message} ->
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(422, message)
+    end
   end
 end
