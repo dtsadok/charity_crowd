@@ -20,7 +20,6 @@ defmodule CharityCrowd.Accounts do
   """
   def list_members do
     Repo.all(Member)
-      |> Repo.preload(nominations: :nomination)
   end
 
   @doc """

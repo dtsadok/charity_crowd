@@ -13,7 +13,9 @@ defmodule CharityCrowd.AccountsTest do
 
     test "list_members/0 returns all members" do
       member = fixture_member()
-      assert Accounts.list_members() == [member]
+      members = Accounts.list_members()
+      assert length(members) == 1
+      assert hd(members).id == member.id
     end
 
     test "get_member/1 returns the member with given id" do
