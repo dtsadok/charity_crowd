@@ -11,11 +11,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       nomination = fixture_nomination()
       conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
 
-      assert %{id: id} = redirected_params(conn)
-      assert redirected_to(conn) == Routes.nomination_path(conn, :show, id)
-
-      #conn = get(conn, Routes.nomination_path(conn, :show, id))
-      #assert html_response(conn, 200) =~ "Show Vote"
+      assert redirected_to(conn) == Routes.nomination_path(conn, :index)
     end
 
     test "with login renders errors when data is invalid", %{conn: conn} do
@@ -48,7 +44,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
       conn = login_as conn, member
       conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
-      assert redirected_to(conn) == Routes.nomination_path(conn, :show, nomination.id)
+      assert redirected_to(conn) == Routes.nomination_path(conn, :index)
 
       nomination = Grants.get_nomination! nomination.id
       assert nomination.percentage == 1.0

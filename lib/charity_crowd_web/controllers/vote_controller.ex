@@ -9,7 +9,7 @@ defmodule CharityCrowdWeb.VoteController do
 
     #TODO: DB Transaction
     case Grants.create_vote(vote_params) do
-      {:ok, vote} ->
+      {:ok, _vote} ->
         #TODO: Globalize
         Calendar.Date.today!("America/New_York")
         |> Grants.list_nominations
@@ -17,7 +17,7 @@ defmodule CharityCrowdWeb.VoteController do
 
         conn
         |> put_flash(:info, "Vote counted successfully.")
-        |> redirect(to: Routes.nomination_path(conn, :show, vote.nomination_id))
+        |> redirect(to: Routes.nomination_path(conn, :index))
 
       {:error, _} ->
         conn
