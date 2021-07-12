@@ -1,5 +1,8 @@
 <h1>Listing Nominations</h1>
 
+<h2 id="last_balance">Total Balance: $<%= @last_balance_cents/100 %></h2>
+<h2 id="allocation">Current Grant Budget: $<%= @grant_budget_cents/100 %></h2>
+
 <span><%= link "Nominate Charity", to: Routes.nomination_path(@conn, :new) %></span>
 
 <table>
@@ -8,7 +11,8 @@
       <th>Charity Info</th>
       <th class="yes-vote">YES</th>
       <th class="no-vote">NO</th>
-      <th>Percentage<br/>Allocation</th>
+      <th>% Allocation</th>
+      <th>$ Allocation</th>
 
       <th></th>
     </tr>
@@ -38,7 +42,8 @@
         end
         %>
       </td>
-      <td><%= round(nomination.percentage * 10000)/100 %>%</td>
+      <td><%= round(nomination.percentage * 100_00)/100 %>%</td>
+      <td>$<%= round(nomination.percentage * @grant_budget_cents)/100 %></td>
 
       <td>
         <span><%= link "Show", to: Routes.nomination_path(@conn, :show, nomination.id) %></span>

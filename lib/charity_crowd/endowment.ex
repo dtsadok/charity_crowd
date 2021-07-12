@@ -8,6 +8,8 @@ defmodule CharityCrowd.Endowment do
 
   alias CharityCrowd.Endowment.Balance
 
+  @allocation_percentage 0.12
+
   def get_last_balance! do
     query = from b in Balance,
       order_by: [desc: :date],
@@ -32,6 +34,12 @@ defmodule CharityCrowd.Endowment do
       limit: 1
 
     Repo.one(query)
+  end
+
+  def get_grant_budget_cents(date) do
+    b = get_prev_balance_for(date)
+    amount_cents = (b && b.amount_cents) || 0
+    @allocation_percentage * amount_cents
   end
 
   @doc """

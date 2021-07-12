@@ -14,7 +14,10 @@ defmodule CharityCrowdWeb.NominationController do
     #month = params[:month] || today.month
     #year = params[:year] || today.year
 
-    date = today #for now
+    #date = Date.new(year, month, 1)
+    date = today
+
+    grant_budget_cents = Endowment.get_grant_budget_cents(date)
 
     archived = date < last_balance.date #<= ?
 
@@ -23,7 +26,12 @@ defmodule CharityCrowdWeb.NominationController do
       _ -> Grants.list_nominations_with_votes_by(current_member, date)
     end
 
-    render(conn, "index.html", current_member: current_member, archived: archived, nominations: nominations)
+    render(conn, "index.html",
+      current_member: current_member,
+      last_balance_cents: last_balance.amount_cents,
+      grant_budget_cents: grant_budget_cents,
+      archived: archived,
+      nominations: nominations)
   end
 
   def new(conn, _params) do
