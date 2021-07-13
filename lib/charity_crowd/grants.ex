@@ -260,21 +260,32 @@ defmodule CharityCrowd.Grants do
 
   """
   def create_vote(attrs \\ %{}) do
-    #TODO: fix this up
-    nomination_id =
-    cond do
-      Map.has_key?(attrs, "nomination_id") -> attrs["nomination_id"]
-      Map.has_key?(attrs, :nomination_id) -> attrs.nomination_id
-    end
+    new_vote = %Vote{} |> Vote.changeset(attrs)
+
+    member_id = new_vote.changes.member_id
+    nomination_id = new_vote.changes.nomination_id
+
+    #TODO: tests pass attributes with atom keys, website passes with string keys.  Should be better way to extract these.  changeset doesn't care
+    #member_id =
+    #cond do
+    #  Map.has_key?(attrs, "member_id") -> attrs["member_id"]
+    #  Map.has_key?(attrs, :member_id) -> attrs[:member_id]
+    #end
+    #nomination_id =
+    #cond do
+    #  Map.has_key?(attrs, "nomination_id") -> attrs["nomination_id"]
+    #  Map.has_key?(attrs, :nomination_id) -> attrs[:nomination_id]
+    #end
 
     nomination = nomination_id && get_nomination!(nomination_id)
 
-    if nomination && !current?(nomination) do
-      {:error, "Cannot vote on archived nomination."}
-    else
-      %Vote{}
-      |> Vote.changeset(attrs)
-      |> Repo.insert()
+    cond do
+      nomination && !current?(nomination) ->
+        {:error, "Cannot vote on archived nomination."}
+      nomination && nomination.member_id == member_id ->
+        {:error, "Cannot vote on own nomination."}
+      true ->
+        Repo.insert(new_vote)
     end
   end
 

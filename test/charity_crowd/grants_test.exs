@@ -22,19 +22,18 @@ defmodule CharityCrowd.GrantsTest do
     end
 
     test "list_nominations_with_votes_by/2 returns nominations for given date with votes by given member" do
-      member = fixture_member()
-      nomination = fixture_nomination(member: member)
-      vote = fixture_vote(member: member, nomination: nomination, value: :N)
+      nomination = fixture_nomination()
+      vote = fixture_vote(member: fixture_member(), nomination: nomination, value: :N)
 
       today = Calendar.Date.today!("America/New_York")
-      nomination_with_votes = Grants.list_nominations_with_votes_by(member, today) |> hd
+      nomination_with_votes = Grants.list_nominations_with_votes_by(vote.member, today) |> hd
       assert nomination_with_votes.id == nomination.id
       assert nomination_with_votes.vote_value == vote.value
     end
 
     test "filter_nominations/1 only returns nominations where Y > N" do
       member = fixture_member("member", "member@example.com")
-      nomination = fixture_nomination(member: member)
+      nomination = fixture_nomination()
       fixture_vote(%{member: member, nomination: nomination}, :N)
 
       #load from DB so we have vote counts
@@ -55,24 +54,25 @@ defmodule CharityCrowd.GrantsTest do
       member3 = fixture_member("member3", "member3@example.com")
       member4 = fixture_member("member4", "member4@example.com")
 
-      nomination1 = fixture_nomination(member: member1) #80%
+      nomination1 = fixture_nomination() #80%
+      member0 = nomination1.member
       fixture_vote(%{member: member1, nomination: nomination1}, :Y)
       fixture_vote(%{member: member2, nomination: nomination1}, :Y)
       fixture_vote(%{member: member3, nomination: nomination1}, :Y)
       fixture_vote(%{member: member4, nomination: nomination1}, :Y)
 
-      nomination2 = fixture_nomination(member: member1) #0% - tie
+      nomination2 = fixture_nomination(member: member0) #0% - tie
       fixture_vote(%{member: member1, nomination: nomination2}, :Y)
       fixture_vote(%{member: member2, nomination: nomination2}, :Y)
       fixture_vote(%{member: member3, nomination: nomination2}, :N)
       fixture_vote(%{member: member4, nomination: nomination2}, :N)
 
-      nomination3 = fixture_nomination(member: member1) #20%
+      nomination3 = fixture_nomination(member: member0) #20%
       fixture_vote(%{member: member1, nomination: nomination3}, :Y)
       fixture_vote(%{member: member2, nomination: nomination3}, :Y)
       fixture_vote(%{member: member3, nomination: nomination3}, :N)
 
-      nomination4 = fixture_nomination(member: member1) #0% - more N votes
+      nomination4 = fixture_nomination(member: member0) #0% - more N votes
       fixture_vote(%{member: member1, nomination: nomination4}, :N)
       fixture_vote(%{member: member2, nomination: nomination4}, :N)
       fixture_vote(%{member: member3, nomination: nomination4}, :Y)
@@ -175,17 +175,19 @@ defmodule CharityCrowd.GrantsTest do
     end
 
     test "create_vote/1 with valid data creates a vote" do
+      member = fixture_member()
       nomination = fixture_nomination()
 
-      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
+      attrs = %{member_id: member.id, nomination_id: nomination.id, value: :Y}
       assert {:ok, %Vote{} = vote} = Grants.create_vote(attrs)
-      assert vote.member_id == nomination.member_id
+      assert vote.member_id == member.id
       assert vote.nomination_id == nomination.id
     end
 
     test "create_vote/1 with invalid data returns error changeset" do
+      member = fixture_member()
       nomination = fixture_nomination()
-      attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Z}
+      attrs = %{member_id: member.id, nomination_id: nomination.id, value: :Z}
       assert {:error, %Ecto.Changeset{}} = Grants.create_vote(attrs)
     end
 
@@ -195,11 +197,18 @@ defmodule CharityCrowd.GrantsTest do
       tomorrow = Calendar.Date.next_day! today
       fixture_balance(1000, tomorrow)
 
+      member = fixture_member()
       nomination = fixture_nomination()
-      valid_attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
+      valid_attrs = %{member_id: member.id, nomination_id: nomination.id, value: :Y}
 
       assert !Grants.current?(nomination)
 
+      assert {:error, _} = Grants.create_vote(valid_attrs)
+    end
+
+    test "create_vote/1 does not allow member to vote on own nomination" do
+      nomination = fixture_nomination()
+      valid_attrs = %{member_id: nomination.member_id, nomination_id: nomination.id, value: :Y}
       assert {:error, _} = Grants.create_vote(valid_attrs)
     end
 
@@ -209,7 +218,7 @@ defmodule CharityCrowd.GrantsTest do
       member3 = fixture_member("member3", "member3@example.com")
       member4 = fixture_member("member4", "member4@example.com")
 
-      nomination = fixture_nomination(member: member1)
+      nomination = fixture_nomination()
       fixture_vote(%{member: member1, nomination: nomination}, :Y)
       fixture_vote(%{member: member2, nomination: nomination}, :Y)
       fixture_vote(%{member: member3, nomination: nomination}, :Y)
