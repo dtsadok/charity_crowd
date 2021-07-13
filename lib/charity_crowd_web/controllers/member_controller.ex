@@ -19,6 +19,7 @@ defmodule CharityCrowdWeb.MemberController do
       #TODO: replace this check with plug(?)
       invite_code = Accounts.get_active_invite_code!(code)
 
+      #TODO: DB Transaction
       case Accounts.create_member(member_params) do
         {:ok, _member} ->
           Accounts.update_invite_code(invite_code, %{active: false})
