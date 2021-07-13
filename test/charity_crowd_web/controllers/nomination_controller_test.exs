@@ -34,7 +34,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
 
     test "allows me to withdraw vote when logged in as voter", %{conn: conn} do
       member = fixture_member()
-      nomination = fixture_nomination(member: member)
+      nomination = fixture_nomination()
       _vote = fixture_vote(member: member, nomination: nomination, value: :N)
       conn = login_as conn, member
       conn = get(conn, Routes.nomination_path(conn, :index))
@@ -46,7 +46,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     #TODO: write as behavior test
     test "allows me to vote when logged in as other", %{conn: conn} do
       member = fixture_member()
-      nomination = fixture_nomination(member: member)
+      nomination = fixture_nomination()
       _vote = fixture_vote(member: member, nomination: nomination, value: :N)
       conn = login_as conn, fixture_member("other", "other@example.com")
       conn = get(conn, Routes.nomination_path(conn, :index))
