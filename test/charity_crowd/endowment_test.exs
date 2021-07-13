@@ -31,7 +31,7 @@ defmodule CharityCrowd.EndowmentTest do
 
     test "get_next_balance_for/1 returns correct Balance" do
       today = Calendar.Date.today! "America/New_York"
-      yesterday = Calendar.Date.next_day! today
+      yesterday = Calendar.Date.prev_day! today
       tomorrow = Calendar.Date.next_day! today
       fixture_balance(1000, yesterday)
       #TODO: the below should not be valid
