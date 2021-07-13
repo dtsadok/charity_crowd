@@ -14,8 +14,8 @@ On the nominations page:
 + I can vote No on a nomination
 + I can withdraw my vote
 + I can't withdraw votes for previous time period
-^ I can change my vote
-^ I can't change votes for previous time period
+? I can change my vote
+? I can't change votes for previous time period
 + I can go to the Nominate page
 + I can see the total current monthly allocation
 * I can see the current monthly allocation for each nomination
