@@ -21,10 +21,10 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     end
   end
 
-  describe "index with month/year" do
+  describe "index with date" do
     setup [:create_balance]
     test "lists all nominations", %{conn: conn} do
-      conn = get(conn, Routes.nomination_path(conn, :index), %{month: 1, year: 2021})
+      conn = get(conn, Routes.nomination_path(conn, :index), %{year: 2021, month: 1, day: 1})
       assert html_response(conn, 200) =~ "Listing Nominations"
     end
   end

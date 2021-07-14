@@ -7,19 +7,27 @@ defmodule CharityCrowdWeb.NominationController do
 
   def index(conn, params) do
     current_member = conn.assigns[:current_member]
-    last_balance = Endowment.get_last_balance!()
 
     #TODO: Globalize
     today = Calendar.Date.today!("America/New_York")
-    #month = params[:month] || today.month
-    #year = params[:year] || today.year
+    year = params["year"] || today.year
+    month = params["month"] || today.month
+    day = params["day"] || today.day
 
-    #date = Date.new(year, month, 1)
-    date = today
+    {year, _} = Integer.parse("#{year}")
+    {month, _} = Integer.parse("#{month}")
+    {day, _} = Integer.parse("#{day}")
 
+    {:ok, date} = Date.new(year, month, day)
+
+    archived = date < today
+
+    balance = Endowment.get_prev_balance_for(date)
     grant_budget_cents = Endowment.get_grant_budget_cents(date)
 
-    archived = date < last_balance.date #<= ?
+    #used to link to previous voting period
+    day_before = balance && Calendar.Date.prev_day!(balance.date)
+    prev_balance = day_before && Endowment.get_prev_balance_for(day_before)
 
     nominations = case current_member do
       nil -> Grants.list_nominations(date)
@@ -28,9 +36,12 @@ defmodule CharityCrowdWeb.NominationController do
 
     render(conn, "index.html",
       current_member: current_member,
-      last_balance_cents: last_balance.amount_cents,
+      date: date,
+      balance_cents: (balance && balance.amount_cents) || 0,
+      balance_date: balance && balance.date,
       grant_budget_cents: grant_budget_cents,
       archived: archived,
+      prev_balance_date: prev_balance && prev_balance.date,
       nominations: nominations)
   end
 
