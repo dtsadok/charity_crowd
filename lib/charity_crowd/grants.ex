@@ -33,7 +33,7 @@ defmodule CharityCrowd.Grants do
   end
 
   @doc """
-  Returns the list of nominations for a given date (very likely today).
+  Returns the list of nominations for a given date (or today by default).
 
   ## Examples
 
@@ -41,7 +41,8 @@ defmodule CharityCrowd.Grants do
       [%Nomination{}, ...]
 
   """
-  def list_nominations(date) do
+  def list_nominations(date \\ nil) do
+    date = date || Calendar.Date.today!("America/New_York")
     {start_datetime, end_datetime} = Endowment.voting_period_for(date)
 
     query = from nom in Nomination,
