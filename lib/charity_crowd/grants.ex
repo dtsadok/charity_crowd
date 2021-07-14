@@ -50,7 +50,7 @@ defmodule CharityCrowd.Grants do
       on: yv.nomination_id == nom.id,
       left_join: nv in subquery(no_vote_count_subquery()),
       on: nv.nomination_id == nom.id,
-      select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count},
+      select: %{id: nom.id, member_id: nom.member_id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count},
       where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
     Repo.all(query)
       #|> Repo.preload([:member, :votes])
@@ -66,7 +66,7 @@ defmodule CharityCrowd.Grants do
       on: nv.nomination_id == nom.id,
       left_join: v in Vote,
       on: v.nomination_id == nom.id and v.member_id == ^member.id,
-      select: %{id: nom.id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count, vote_value: v.value},
+      select: %{id: nom.id, member_id: nom.member_id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count, vote_value: v.value},
       where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
 
     Repo.all(query)

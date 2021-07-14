@@ -17,7 +17,7 @@ defmodule CharityCrowd.GrantsTest do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
 
-      assert Grants.list_nominations() == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
+      assert Grants.list_nominations() == [%{id: nomination.id, member_id: nomination.member_id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
     end
 
     test "list_nominations/1 returns nominations for given date" do
@@ -25,7 +25,7 @@ defmodule CharityCrowd.GrantsTest do
       nomination = fixture_nomination(member: member)
 
       today = Calendar.Date.today!("America/New_York")
-      assert Grants.list_nominations(today) == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
+      assert Grants.list_nominations(today) == [%{id: nomination.id, member_id: nomination.member_id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
     end
 
     test "list_nominations_with_votes_by/2 returns nominations for given date with votes by given member" do
