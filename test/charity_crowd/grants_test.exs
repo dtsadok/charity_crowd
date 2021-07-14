@@ -13,6 +13,13 @@ defmodule CharityCrowd.GrantsTest do
 
     setup [:create_balance]
 
+    test "list_nominations/1 returns nominations for today by default" do
+      member = fixture_member()
+      nomination = fixture_nomination(member: member)
+
+      assert Grants.list_nominations() == [%{id: nomination.id, inserted_at: nomination.inserted_at, name: "Charity", no_vote_count: nil, percentage: 0, pitch: "This is a charity", yes_vote_count: nil}]
+    end
+
     test "list_nominations/1 returns nominations for given date" do
       member = fixture_member()
       nomination = fixture_nomination(member: member)
