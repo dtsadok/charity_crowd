@@ -46,4 +46,4 @@ On the member page:
 - I can see a member's list of nominations
 
 As Admin:
-* I can add a new Balance with specified amount and date
++ I can add a new Balance with specified amount and date
