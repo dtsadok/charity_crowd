@@ -18,6 +18,7 @@ defmodule CharityCrowd.Endowment do
     Repo.one!(query)
   end
 
+  #this is useful because Balances delimit voting periods
   def get_prev_balance_for(date) do
     query = from b in Balance,
       where: b.date <= ^date,
