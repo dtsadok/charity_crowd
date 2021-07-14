@@ -32,6 +32,7 @@ defmodule CharityCrowdWeb.Router do
 
     get "/", PageController, :index
 
+    get "/logout", SessionController, :delete
     resources "/sessions", SessionController, only: [:new, :create, :delete],
                                               singleton: true
     resources "/members", MemberController, only: [:new, :create]
