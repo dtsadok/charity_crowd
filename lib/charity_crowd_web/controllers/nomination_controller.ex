@@ -20,14 +20,16 @@ defmodule CharityCrowdWeb.NominationController do
 
     {:ok, date} = Date.new(year, month, day)
 
-    archived = date < today
+    archived = date < Endowment.get_last_balance!().date
 
     balance = Endowment.get_prev_balance_for(date)
     grant_budget_cents = Endowment.get_grant_budget_cents(date)
 
-    #used to link to previous voting period
+    #used to link to previous/next voting period
     day_before = balance && Calendar.Date.prev_day!(balance.date)
     prev_balance = day_before && Endowment.get_prev_balance_for(day_before)
+    day_after = balance && Calendar.Date.next_day!(balance.date)
+    next_balance = day_after && Endowment.get_next_balance_for(day_after)
 
     nominations = case current_member do
       nil -> Grants.list_nominations(date)
@@ -42,6 +44,7 @@ defmodule CharityCrowdWeb.NominationController do
       grant_budget_cents: grant_budget_cents,
       archived: archived,
       prev_balance_date: prev_balance && prev_balance.date,
+      next_balance_date: next_balance && next_balance.date,
       nominations: nominations)
   end
 

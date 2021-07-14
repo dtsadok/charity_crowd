@@ -3,7 +3,9 @@
 <h2 id="last_balance">Balance as of <%= @balance_date %>: $<%= @balance_cents/100 %></h2>
 <h2 id="allocation">Grant Budget: $<%= @grant_budget_cents/100 %></h2>
 
-<span><%= link "Nominate Charity", to: Routes.nomination_path(@conn, :new) %></span>
+<%= if !@archived do %>
+  <span><%= link "Nominate Charity", to: Routes.nomination_path(@conn, :new) %></span>
+<% end %>
 
 <table>
   <thead>
@@ -48,5 +50,8 @@
 </table>
 
 <%= if @prev_balance_date do %>
-  <span><%= link "Previous Voting Period", to: Routes.nomination_path(@conn, :index, %{year: @prev_balance_date.year, month: @prev_balance_date.month, day: @prev_balance_date.day}) %></span>
+  <div><%= link "Previous Voting Period", to: Routes.nomination_path(@conn, :index, %{year: @prev_balance_date.year, month: @prev_balance_date.month, day: @prev_balance_date.day}) %></div>
+<% end %>
+<%= if @next_balance_date do %>
+  <div><%= link "Next Voting Period", to: Routes.nomination_path(@conn, :index, %{year: @next_balance_date.year, month: @next_balance_date.month, day: @next_balance_date.day}) %></div>
 <% end %>
