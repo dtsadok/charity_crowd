@@ -32,7 +32,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   describe "index with existing vote" do
     setup [:create_balance]
 
-    test "allows me to withdraw vote when logged in as voter", %{conn: conn} do
+    test "shows page when logged in as voter", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination()
       _vote = fixture_vote(member: member, nomination: nomination, value: :N)
@@ -40,18 +40,15 @@ defmodule CharityCrowdWeb.NominationControllerTest do
       conn = get(conn, Routes.nomination_path(conn, :index))
       #for now just make sure page renders ok
       assert html_response(conn, 200) =~ "Listing Nominations"
-      flunk "TODO"
     end
 
-    #TODO: write as behavior test
-    test "allows me to vote when logged in as other", %{conn: conn} do
+    test "shows page when logged in as other", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination()
       _vote = fixture_vote(member: member, nomination: nomination, value: :N)
       conn = login_as conn, fixture_member("other", "other@example.com")
       conn = get(conn, Routes.nomination_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Nominations"
-      flunk "TODO"
     end
   end
 
