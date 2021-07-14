@@ -1,6 +1,5 @@
 defmodule CharityCrowdWeb.VoteController do
   use CharityCrowdWeb, :controller
-
   alias CharityCrowd.Grants
 
   def create(conn, %{"vote" => vote_params}) do
@@ -19,10 +18,16 @@ defmodule CharityCrowdWeb.VoteController do
         |> put_flash(:info, "Vote counted successfully.")
         |> redirect(to: Routes.nomination_path(conn, :index))
 
-      {:error, _} ->
+      #probably trying to double-vote
+      {:error, %Ecto.Changeset{} = _} ->
         conn
         |> put_resp_content_type("text/html")
-        |> send_resp(422, "Vote data invalid.")
+        |> send_resp(422, "Vote data invalid")
+
+      {:error, msg} ->
+        conn
+        |> put_resp_content_type("text/html")
+        |> send_resp(422, msg)
     end
   end
 

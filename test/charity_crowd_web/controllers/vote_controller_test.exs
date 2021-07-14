@@ -44,7 +44,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
       conn = login_as conn, member
       conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
-      assert html_response(conn, 422) =~ "invalid"
+      assert html_response(conn, 422) =~ "Cannot vote on own nomination"
     end
 
     test "updates nomination percentage", %{conn: conn} do
@@ -69,7 +69,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       nomination = fixture_nomination()
       conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
 
-      assert html_response(conn, 422) =~ "invalid"
+      assert html_response(conn, 422) =~ "Cannot vote on archived nomination"
     end
   end
 
