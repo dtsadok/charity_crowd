@@ -16,6 +16,11 @@ defmodule CharityCrowdWeb.Router do
   #authenticated routes have to come first.  Why?  Because otherwise /foo/new maps to :show, not :new
   scope "/", CharityCrowdWeb do
     pipe_through [:browser, :authenticate]
+    scope "/members" do
+      get "/change_password", MemberController, :show_change_password_page
+      post "/change_password", MemberController, :change_password
+    end
+
     scope "/grants" do
       resources "/nominations", NominationController, except: [:index, :show]
       resources "/votes", VoteController, only: [:create, :delete]

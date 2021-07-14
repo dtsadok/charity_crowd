@@ -75,4 +75,25 @@ defmodule CharityCrowdWeb.MemberController do
     |> put_flash(:info, "Member deleted successfully.")
     |> redirect(to: Routes.member_path(conn, :index))
   end
+
+  def show_change_password_page(conn, _params) do
+    render(conn, "change_password.html")
+  end
+
+  def change_password(conn, %{"current_password" => current_password, "new_password" => new_password}) do
+    current_member = conn.assigns[:current_member]
+
+    if Argon2.verify_pass(current_password, current_member.password) do
+      Accounts.update_member(current_member, %{password: new_password})
+
+      conn
+      |> put_flash(:info, "Password changed successfully.")
+      |> redirect(to: "/")
+    else
+      conn
+        |> put_status(422)
+        |> put_flash(:info, "Current password incorrect.")
+        |> render("change_password.html")
+    end
+  end
 end

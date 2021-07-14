@@ -1,6 +1,7 @@
 defmodule CharityCrowdWeb.MemberControllerTest do
   use CharityCrowdWeb.ConnCase
   import CharityCrowd.Fixtures
+  alias CharityCrowd.Accounts
 
   @create_attrs %{nickname: "some nickname", first: "Daniel", last: "Tsadok", email: "daniel@example.com", password: "some password"}
   #@update_attrs %{nickname: "some updated nickname", password: "some updated password"}
@@ -83,8 +84,49 @@ defmodule CharityCrowdWeb.MemberControllerTest do
   #  end
   #end
 
-  #defp create_member(_) do
-  #  member = fixture(:member)
-  #  %{member: member}
-  #end
+  describe "change password page" do
+    setup [:create_member]
+
+    test "requires login", %{conn: conn} do
+      conn = get(conn, Routes.member_path(conn, :show_change_password_page))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "shows form when logged in", %{conn: conn, member: member} do
+      conn = login_as conn, member
+      conn = get(conn, Routes.member_path(conn, :show_change_password_page))
+      assert html_response(conn, 200) =~ "Change Password"
+    end
+  end
+
+  describe "change password action" do
+    setup [:create_member]
+
+    test "requires login", %{conn: conn, member: _member} do
+      conn = post(conn, Routes.member_path(conn, :change_password))
+      assert redirected_to(conn) == Routes.session_path(conn, :new)
+    end
+
+    test "changes password when old password is correct", %{conn: conn, member: member} do
+      conn = login_as conn, member
+      conn = post(conn, Routes.member_path(conn, :change_password, %{"current_password" => "1234", "new_password" => "5678"}))
+      assert redirected_to(conn) == "/"
+
+      member = Accounts.get_member! member.id
+      assert Argon2.verify_pass("5678", member.password)
+    end
+
+    test "does not change password when old password is incorrect", %{conn: conn, member: member} do
+      conn = login_as conn, member
+      conn = post(conn, Routes.member_path(conn, :change_password, %{"current_password" => "WRONG", "new_password" => "5678"}))
+      assert html_response(conn, 422) =~ "Change Password"
+      member = Accounts.get_member! member.id
+      assert !Argon2.verify_pass("5678", member.password)
+    end
+  end
+
+  defp create_member(_) do
+    member = fixture_member()
+    %{member: member}
+  end
 end
