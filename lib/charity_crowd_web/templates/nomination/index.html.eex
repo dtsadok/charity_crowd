@@ -13,8 +13,6 @@
       <th class="no-vote">NO</th>
       <th>% Allocation</th>
       <th>$ Allocation</th>
-
-      <th></th>
     </tr>
   </thead>
   <tbody>
@@ -28,7 +26,7 @@
         <%=
         cond do
           @archived -> nomination.yes_vote_count || 0
-          nomination.vote_value == :Y -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
+          @current_member && nomination.vote_value == :Y -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_yes_vote.html", conn: @conn, nomination: nomination)
         end
         %>
@@ -37,19 +35,13 @@
         <%=
         cond do
           @archived -> nomination.no_vote_count || 0
-          nomination.vote_value == :N -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
+          @current_member && nomination.vote_value == :N -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_no_vote.html", conn: @conn, nomination: nomination)
         end
         %>
       </td>
       <td><%= round(nomination.percentage * 100_00)/100 %>%</td>
       <td>$<%= round(nomination.percentage * @grant_budget_cents)/100 %></td>
-
-      <td>
-        <span><%= link "Show", to: Routes.nomination_path(@conn, :show, nomination.id) %></span>
-        <span><%= link "Edit", to: Routes.nomination_path(@conn, :edit, nomination.id) %></span>
-        <span><%= link "Delete", to: Routes.nomination_path(@conn, :delete, nomination.id), method: :delete, data: [confirm: "Are you sure?"] %></span>
-      </td>
     </tr>
 <% end %>
   </tbody>
