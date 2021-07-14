@@ -8,7 +8,7 @@ On the nominations page:
 ^ Vote buttons are accessible
 + I can see the list of current nominations
 + I can see how many votes each nomination has received
-* I can see the nominations from a previous time period
++ I can see the nominations from a previous time period
 + I cannot vote for nominations from a previous time period
 + I can vote Yes on a nomination
 + I can vote No on a nomination
@@ -18,16 +18,16 @@ On the nominations page:
 ? I can't change votes for previous time period
 + I can go to the Nominate page
 + I can see the total current monthly allocation
-* I can see the current monthly allocation for each nomination
++ I can see the current monthly allocation for each nomination
 + I can see the current percentage allocation for each nomination
-- I can see how many votes I have left for the month
+- I can see how many votes I have left for the voting period
 - I can see the nominations I've voted on
 ^ I can see comments for a nomination
 ^ I can comment on a nomination
 
 On the nominate page:
-- I can nominate only one charity every month
-^ I can't vote for my own nomination
+- I can nominate only one charity every voting period
++ I can't vote for my own nomination
 - I can see a auto-completed list of charities as I type a name
 
 On the charities page:
@@ -37,8 +37,9 @@ On the charities page:
 On the security page:
 + I can sign up (with invite code)
 + I can log in
-^ I can log out
-^ I can change my password
++ I can log out
++ I can change my password
+^ I can reset my password
 
 On the member page:
 - I can see a member's real name
