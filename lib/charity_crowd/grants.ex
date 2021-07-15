@@ -225,19 +225,6 @@ defmodule CharityCrowd.Grants do
     new_vote = %Vote{} |> Vote.changeset(attrs)
 
     nomination_id = new_vote.changes.nomination_id
-
-    #TODO: tests pass attributes with atom keys, website passes with string keys.  Should be better way to extract these.  changeset doesn't care
-    #member_id =
-    #cond do
-    #  Map.has_key?(attrs, "member_id") -> attrs["member_id"]
-    #  Map.has_key?(attrs, :member_id) -> attrs[:member_id]
-    #end
-    #nomination_id =
-    #cond do
-    #  Map.has_key?(attrs, "nomination_id") -> attrs["nomination_id"]
-    #  Map.has_key?(attrs, :nomination_id) -> attrs[:nomination_id]
-    #end
-
     nomination = nomination_id && get_nomination!(nomination_id)
 
     cond do
