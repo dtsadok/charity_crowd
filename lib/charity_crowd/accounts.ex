@@ -246,4 +246,67 @@ defmodule CharityCrowd.Accounts do
   def change_invite_code(%InviteCode{} = invite_code, attrs \\ %{}) do
     InviteCode.changeset(invite_code, attrs)
   end
+
+  alias CharityCrowd.Accounts.Ballot
+
+  @doc """
+  Returns the number of balances for a member.
+  ## Examples
+
+      iex> count_ballots(member)
+      3
+
+  """
+  def count_ballots(member = %Member{}, date) do
+    query =
+      from b in Ballot,
+        where: b.member_id == ^member.id and b.date >= ^date,
+        select: count(b.id)
+
+    Repo.one!(query)
+  end
+
+  @doc """
+  Returns the list of ballots.
+
+  ## Examples
+
+      iex> list_ballots()
+      [%Ballot{}, ...]
+
+  """
+  def list_ballots do
+    Repo.all(Ballot)
+  end
+
+  @doc """
+  Creates a ballot.
+
+  ## Examples
+
+      iex> create_ballot(%{field: value})
+      {:ok, %Ballot{}}
+
+      iex> create_ballot(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_ballot(attrs \\ %{}) do
+    %Ballot{}
+    |> Ballot.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking ballot changes.
+
+  ## Examples
+
+      iex> change_ballot(ballot)
+      %Ecto.Changeset{data: %Ballot{}}
+
+  """
+  def change_ballot(%Ballot{} = ballot, attrs \\ %{}) do
+    Ballot.changeset(ballot, attrs)
+  end
 end

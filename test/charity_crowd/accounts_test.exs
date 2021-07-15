@@ -121,4 +121,44 @@ defmodule CharityCrowd.AccountsTest do
       assert %Ecto.Changeset{} = Accounts.change_invite_code(invite_code)
     end
   end
+
+  describe "ballots" do
+    alias CharityCrowd.Accounts.Ballot
+
+    @valid_attrs %{date: ~D[2010-04-17], member_id: 42}
+    @invalid_attrs %{date: nil, member_id: nil}
+
+    test "count_ballots/2 returns number of ballots for member since given date" do
+      today = Calendar.Date.today!("America/New_York")
+      member = fixture_member()
+
+      assert Accounts.count_ballots(member, today) == 0
+
+      fixture_ballot(%{member: member})
+      assert Accounts.count_ballots(member, today) == 1
+
+      fixture_ballot(%{member: member})
+      assert Accounts.count_ballots(member, today) == 2
+    end
+
+    test "list_ballots/0 returns all ballots" do
+      ballot = fixture_ballot()
+      assert Accounts.list_ballots() == [ballot]
+    end
+
+    test "create_ballot/1 with valid data creates a ballot" do
+      assert {:ok, %Ballot{} = ballot} = Accounts.create_ballot(@valid_attrs)
+      assert ballot.date == ~D[2010-04-17]
+      assert ballot.member_id == 42
+    end
+
+    test "create_ballot/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_ballot(@invalid_attrs)
+    end
+
+    test "change_ballot/1 returns a ballot changeset" do
+      ballot = fixture_ballot()
+      assert %Ecto.Changeset{} = Accounts.change_ballot(ballot)
+    end
+  end
 end

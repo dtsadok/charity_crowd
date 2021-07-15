@@ -4,6 +4,7 @@ defmodule CharityCrowdWeb.NominationController do
   alias CharityCrowd.Grants
   alias CharityCrowd.Grants.Nomination
   alias CharityCrowd.Endowment
+  alias CharityCrowd.Accounts
 
   def index(conn, params) do
     current_member = conn.assigns[:current_member]
@@ -20,7 +21,10 @@ defmodule CharityCrowdWeb.NominationController do
 
     {:ok, date} = Date.new(year, month, day)
 
-    archived = date < Endowment.get_last_balance!().date
+    last_balance = Endowment.get_last_balance!()
+    archived = date < last_balance.date
+
+    is_out_of_votes = current_member && Accounts.count_ballots(current_member, last_balance.date) >= 3
 
     balance = Endowment.get_prev_balance_for(date)
     grant_budget_cents = Endowment.get_grant_budget_cents(date)
@@ -40,6 +44,7 @@ defmodule CharityCrowdWeb.NominationController do
       balance_date: balance && balance.date,
       grant_budget_cents: grant_budget_cents,
       archived: archived,
+      is_out_of_votes: is_out_of_votes,
       prev_balance_date: prev_balance && prev_balance.date,
       next_balance_date: next_balance && next_balance.date,
       nominations: nominations)

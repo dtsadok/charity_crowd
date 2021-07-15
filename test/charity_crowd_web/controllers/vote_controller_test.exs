@@ -36,6 +36,18 @@ defmodule CharityCrowdWeb.VoteControllerTest do
       assert html_response(conn, 422) =~ "Cannot vote on own nomination"
     end
 
+    test "does not allow me to vote more than 3 times per voting period", %{conn: conn} do
+      member = fixture_member()
+      fixture_ballot(%{member: member})
+      fixture_ballot(%{member: member})
+      fixture_ballot(%{member: member})
+      nomination = fixture_nomination()
+
+      conn = login_as conn, member
+      conn = post(conn, Routes.vote_path(conn, :create), vote: %{nomination_id: nomination.id, value: :Y})
+      assert html_response(conn, 422) =~ "No more votes for this voting period"
+    end
+
     test "updates nomination percentage", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination()
