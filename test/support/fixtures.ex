@@ -70,4 +70,13 @@ defmodule CharityCrowd.Fixtures do
 
       balance
   end
+
+  def fixture_voting_period(start_date \\ nil) do
+      start_date = start_date || Calendar.Date.today!("America/New_York")
+      {:ok, voting_period} =
+        %{start_date: start_date}
+        |> Grants.create_voting_period()
+
+      voting_period
+  end
 end

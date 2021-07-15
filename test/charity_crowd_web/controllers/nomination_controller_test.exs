@@ -7,7 +7,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   @invalid_attrs %{name: nil, pitch: nil}
 
   describe "index" do
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
 
     test "lists all nominations", %{conn: conn} do
       conn = get(conn, Routes.nomination_path(conn, :index))
@@ -22,7 +22,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   describe "index with date" do
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
     test "lists all nominations", %{conn: conn} do
       conn = get(conn, Routes.nomination_path(conn, :index), %{year: 2021, month: 1, day: 1})
       assert html_response(conn, 200) =~ "Listing Nominations"
@@ -30,7 +30,7 @@ defmodule CharityCrowdWeb.NominationControllerTest do
   end
 
   describe "index with existing vote" do
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
 
     test "shows page when logged in as voter", %{conn: conn} do
       member = fixture_member()
@@ -159,6 +159,11 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     member = fixture_member()
     nomination = fixture_nomination(member: member)
     %{nomination: nomination}
+  end
+
+  defp create_voting_period(_) do
+    voting_period = fixture_voting_period()
+    %{voting_period: voting_period}
   end
 
   defp create_balance(_) do

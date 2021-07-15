@@ -11,7 +11,7 @@ defmodule CharityCrowd.GrantsTest do
     @update_attrs %{name: "some updated name", pitch: "some updated pitch", percentage: 0.42}
     @invalid_attrs %{name: nil, pitch: nil}
 
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
 
     test "list_nominations/1 returns nominations for today by default" do
       member = fixture_member()
@@ -97,11 +97,10 @@ defmodule CharityCrowd.GrantsTest do
       assert Grants.current?(nomination)
     end
 
-    test "current? returns false if balance.date > nomination.date" do
-      #set last Balance in the future so nomination will be considered archived
+    test "current? returns false if voting_period.date > nomination.date" do
       today = Calendar.Date.today_utc
       tomorrow = Calendar.Date.next_day! today
-      fixture_balance(1000, tomorrow)
+      fixture_voting_period(tomorrow)
 
       nomination = fixture_nomination()
 
@@ -159,7 +158,7 @@ defmodule CharityCrowd.GrantsTest do
   describe "votes" do
     alias CharityCrowd.Grants.Vote
 
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
 
     test "list_votes/0 returns all votes" do
       vote = fixture_vote()
@@ -186,7 +185,7 @@ defmodule CharityCrowd.GrantsTest do
       #set last Balance in the future so nomination will be considered archived
       today = Calendar.Date.today_utc
       tomorrow = Calendar.Date.next_day! today
-      fixture_balance(1000, tomorrow)
+      fixture_voting_period(tomorrow)
 
       nomination = fixture_nomination()
       attrs = %{nomination_id: nomination.id, value: :Y}
@@ -224,6 +223,64 @@ defmodule CharityCrowd.GrantsTest do
     #  vote = fixture_vote()
     #  assert %Ecto.Changeset{} = Grants.change_vote(vote)
     #end
+  end
+
+  describe "voting_periods" do
+    alias CharityCrowd.Grants.VotingPeriod
+
+    @valid_attrs %{start_date: ~D[2010-04-17]}
+    @invalid_attrs %{start_date: nil}
+
+    test "get_next_voting_period_for/1 returns correct VotingPeriod" do
+      today = Calendar.Date.today! "America/New_York"
+      yesterday = Calendar.Date.prev_day! today
+      tomorrow = Calendar.Date.next_day! today
+
+      fixture_voting_period(yesterday)
+      fixture_voting_period(tomorrow)
+
+      vp = Grants.get_next_voting_period_for(today)
+      assert vp.start_date == tomorrow
+    end
+
+    test "voting_period_for/1 returns correct times" do
+      tz = "America/New_York"
+      today = Calendar.Date.today! tz
+      yesterday = Calendar.Date.prev_day! today
+      tomorrow = Calendar.Date.next_day! today
+
+      fixture_voting_period(yesterday)
+      fixture_voting_period(tomorrow)
+
+      correct_start = Calendar.DateTime.from_date_and_time_and_zone!(yesterday, ~T[00:00:00], tz) |> Calendar.DateTime.shift_zone!("UTC")
+      correct_end = Calendar.DateTime.from_date_and_time_and_zone!(tomorrow, ~T[00:00:00], tz) |> Calendar.DateTime.shift_zone!("UTC")
+
+      assert {correct_start, correct_end} == Grants.voting_period_for(today)
+    end
+
+    test "list_voting_periods/0 returns all voting_periods" do
+      voting_period = fixture_voting_period()
+      assert Grants.list_voting_periods() == [voting_period]
+    end
+
+    test "create_voting_period/1 with valid data creates a voting_period" do
+      assert {:ok, %VotingPeriod{} = voting_period} = Grants.create_voting_period(@valid_attrs)
+      assert voting_period.start_date == ~D[2010-04-17]
+    end
+
+    test "create_voting_period/1 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Grants.create_voting_period(@invalid_attrs)
+    end
+
+    test "change_voting_period/1 returns a voting_period changeset" do
+      voting_period = fixture_voting_period()
+      assert %Ecto.Changeset{} = Grants.change_voting_period(voting_period)
+    end
+  end
+
+  defp create_voting_period(_) do
+    voting_period = fixture_voting_period()
+    %{voting_period: voting_period}
   end
 
   defp create_balance(_) do

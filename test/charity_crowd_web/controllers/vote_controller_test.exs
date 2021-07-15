@@ -4,7 +4,7 @@ defmodule CharityCrowdWeb.VoteControllerTest do
   alias CharityCrowd.Grants
 
   describe "create vote" do
-    setup [:create_balance]
+    setup [:create_voting_period, :create_balance]
 
     test "with login redirects to nominations when data is valid", %{conn: conn} do
       conn = login_as conn, fixture_member()
@@ -61,10 +61,10 @@ defmodule CharityCrowdWeb.VoteControllerTest do
     end
 
     test "fails on an old nomination", %{conn: conn} do
-      #set last Balance in the future so nomination will be archived
+      #set voting period in the future so nomination will be archived
       today = Calendar.Date.today_utc
       tomorrow = Calendar.Date.next_day! today
-      fixture_balance(1000, tomorrow)
+      fixture_voting_period(tomorrow)
 
       conn = login_as conn, fixture_member()
       nomination = fixture_nomination()
@@ -72,6 +72,11 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
       assert html_response(conn, 422) =~ "Cannot vote on archived nomination"
     end
+  end
+
+  defp create_voting_period(_) do
+    voting_period = fixture_voting_period()
+    %{voting_period: voting_period}
   end
 
   defp create_balance(_) do

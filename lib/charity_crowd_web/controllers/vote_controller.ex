@@ -1,7 +1,6 @@
 defmodule CharityCrowdWeb.VoteController do
   use CharityCrowdWeb, :controller
   alias CharityCrowd.Grants
-  alias CharityCrowd.Endowment
   alias CharityCrowd.Accounts
 
   def create(conn, %{"vote" => vote_params}) do
@@ -11,8 +10,7 @@ defmodule CharityCrowdWeb.VoteController do
     nomination_id = vote_params["nomination_id"]
     nomination = Grants.get_nomination!(nomination_id)
 
-    #used to determine start of voting period
-    last_balance = Endowment.get_last_balance!()
+    last_voting_period = Grants.get_last_voting_period!()
 
     cond do
       current_member.id == nomination.member_id ->
@@ -21,7 +19,7 @@ defmodule CharityCrowdWeb.VoteController do
         |> send_resp(422, "Cannot vote on own nomination")
 
     #do we have any votes left?
-    Accounts.count_ballots(current_member, last_balance.date) >= 3 ->
+    Accounts.count_ballots(current_member, last_voting_period.start_date) >= 3 ->
         conn
         |> put_resp_content_type("text/html")
         |> send_resp(422, "No more votes for this voting period.")

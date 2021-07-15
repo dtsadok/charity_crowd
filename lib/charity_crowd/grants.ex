@@ -8,7 +8,6 @@ defmodule CharityCrowd.Grants do
 
   alias CharityCrowd.Grants.Nomination
   alias CharityCrowd.Grants.Vote
-  alias CharityCrowd.Endowment
 
   #inspired by https://medium.com/@eric.programmer/the-sql-alternative-to-counter-caches-59e2098b7d7
   def vote_count_subquery do
@@ -43,7 +42,7 @@ defmodule CharityCrowd.Grants do
   """
   def list_nominations(date \\ nil) do
     date = date || Calendar.Date.today!("America/New_York")
-    {start_datetime, end_datetime} = Endowment.voting_period_for(date)
+    {start_datetime, end_datetime} = voting_period_for(date)
 
     query = from nom in Nomination,
       left_join: yv in subquery(yes_vote_count_subquery()),
@@ -104,10 +103,10 @@ defmodule CharityCrowd.Grants do
   end
 
   def current?(nomination = %Nomination{}) do
-    last_balance = Endowment.get_last_balance!()
+    last_voting_period = get_last_voting_period!()
 
     nomination_date = Calendar.NaiveDateTime.to_date(nomination.inserted_at)
-    nomination_date >= last_balance.date
+    nomination_date >= last_voting_period.start_date
   end
 
   @doc """
@@ -233,5 +232,101 @@ defmodule CharityCrowd.Grants do
       true ->
         Repo.insert(new_vote)
     end
+  end
+
+  alias CharityCrowd.Grants.VotingPeriod
+
+  def get_last_voting_period! do
+    query = from vp in VotingPeriod,
+      order_by: [desc: :start_date],
+      limit: 1
+
+    Repo.one!(query)
+  end
+
+  def get_prev_voting_period_for(date) do
+    query = from vp in VotingPeriod,
+      where: vp.start_date <= ^date,
+      order_by: [desc: :start_date],
+      limit: 1
+
+    Repo.one(query)
+  end
+
+  def get_next_voting_period_for(date) do
+    query = from vp in VotingPeriod,
+      where: vp.start_date > ^date,
+      order_by: [asc: :start_date],
+      limit: 1
+
+    Repo.one(query)
+  end
+
+  def voting_period_for(date) do
+    #TODO: Globalize
+    tz = "America/New_York"
+    today = Calendar.Date.today!(tz)
+    tomorrow = Calendar.Date.next_day! today
+    prev_voting_period = get_prev_voting_period_for(date) || get_last_voting_period!() #if date is prior to last voting_period date
+    next_voting_period = get_next_voting_period_for(date)
+    start_date = prev_voting_period.start_date
+    end_date = if next_voting_period do
+      next_voting_period.start_date
+    else
+      tomorrow
+    end
+
+    start_datetime = Calendar.DateTime.from_date_and_time_and_zone!(start_date, ~T[00:00:00], tz)
+    end_datetime = Calendar.DateTime.from_date_and_time_and_zone!(end_date, ~T[00:00:00], tz)
+
+    #now shift time zone to UTC so it matches nomination timestamps
+    start_datetime = Calendar.DateTime.shift_zone!(start_datetime, "UTC")
+    end_datetime = Calendar.DateTime.shift_zone!(end_datetime, "UTC")
+
+    {start_datetime, end_datetime}
+  end
+
+  @doc """
+  Returns the list of voting_periods.
+
+  ## Examples
+
+      iex> list_voting_periods()
+      [%VotingPeriod{}, ...]
+
+  """
+  def list_voting_periods do
+    Repo.all(VotingPeriod)
+  end
+
+  @doc """
+  Creates a voting_period.
+
+  ## Examples
+
+      iex> create_voting_period(%{field: value})
+      {:ok, %VotingPeriod{}}
+
+      iex> create_voting_period(%{field: bad_value})
+      {:error, %Ecto.Changeset{}}
+
+  """
+  def create_voting_period(attrs \\ %{}) do
+    %VotingPeriod{}
+    |> VotingPeriod.changeset(attrs)
+    |> Repo.insert()
+  end
+
+  @doc """
+  Returns an `%Ecto.Changeset{}` for tracking voting_period changes.
+
+  ## Examples
+
+      iex> change_voting_period(voting_period)
+      %Ecto.Changeset{data: %VotingPeriod{}}
+
+  """
+  def change_voting_period(%VotingPeriod{} = voting_period, attrs \\ %{}) do
+    VotingPeriod.changeset(voting_period, attrs)
   end
 end

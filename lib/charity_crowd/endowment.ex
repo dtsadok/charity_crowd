@@ -10,15 +10,6 @@ defmodule CharityCrowd.Endowment do
 
   @allocation_percentage 0.12
 
-  def get_last_balance! do
-    query = from b in Balance,
-      order_by: [desc: :date],
-      limit: 1
-
-    Repo.one!(query)
-  end
-
-  #this is useful because Balances delimit voting periods
   def get_prev_balance_for(date) do
     query = from b in Balance,
       where: b.date <= ^date,
@@ -28,13 +19,12 @@ defmodule CharityCrowd.Endowment do
     Repo.one(query)
   end
 
-  def get_next_balance_for(date) do
+  def get_last_balance! do
     query = from b in Balance,
-      where: b.date > ^date,
-      order_by: [asc: :date],
+      order_by: [desc: :date],
       limit: 1
 
-    Repo.one(query)
+    Repo.one!(query)
   end
 
   def get_grant_budget_cents(date) do
@@ -102,29 +92,5 @@ defmodule CharityCrowd.Endowment do
   """
   def change_balance(%Balance{} = balance, attrs \\ %{}) do
     Balance.changeset(balance, attrs)
-  end
-
-  def voting_period_for(date) do
-    #TODO: Globalize
-    tz = "America/New_York"
-    today = Calendar.Date.today!(tz)
-    tomorrow = Calendar.Date.next_day! today
-    prev_balance = get_prev_balance_for(date) || get_last_balance!() #if date is prior to last balance date
-    next_balance = get_next_balance_for(date)
-    start_date = prev_balance.date
-    end_date = if next_balance do
-      next_balance.date
-    else
-      tomorrow
-    end
-
-    start_datetime = Calendar.DateTime.from_date_and_time_and_zone!(start_date, ~T[00:00:00], tz)
-    end_datetime = Calendar.DateTime.from_date_and_time_and_zone!(end_date, ~T[00:00:00], tz)
-
-    #now shift time zone to UTC so it matches nomination timestamps
-    start_datetime = Calendar.DateTime.shift_zone!(start_datetime, "UTC")
-    end_datetime = Calendar.DateTime.shift_zone!(end_datetime, "UTC")
-
-    {start_datetime, end_datetime}
   end
 end

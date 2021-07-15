@@ -26,27 +26,29 @@ defmodule CharityCrowdWeb.NominationController do
 
     is_out_of_votes = current_member && Accounts.count_ballots(current_member, last_balance.date) >= 3
 
+    voting_period = Grants.get_prev_voting_period_for(date)
     balance = Endowment.get_prev_balance_for(date)
     grant_budget_cents = Endowment.get_grant_budget_cents(date)
 
     #used to link to previous/next voting period
-    day_before = balance && Calendar.Date.prev_day!(balance.date)
-    prev_balance = day_before && Endowment.get_prev_balance_for(day_before)
-    day_after = balance && Calendar.Date.next_day!(balance.date)
-    next_balance = day_after && Endowment.get_next_balance_for(day_after)
+    day_before = voting_period && Calendar.Date.prev_day!(voting_period.start_date)
+    prev_voting_period = day_before && Grants.get_prev_voting_period_for(day_before)
+    day_after = voting_period && Calendar.Date.next_day!(voting_period.start_date)
+    next_voting_period = day_after && Grants.get_next_voting_period_for(day_after)
 
     nominations = Grants.list_nominations(date)
 
     render(conn, "index.html",
       current_member: current_member,
       date: date,
+      balance_date: (balance && balance.date) || 0,
       balance_cents: (balance && balance.amount_cents) || 0,
-      balance_date: balance && balance.date,
+      voting_period_date: voting_period && voting_period.start_date,
       grant_budget_cents: grant_budget_cents,
       archived: archived,
       is_out_of_votes: is_out_of_votes,
-      prev_balance_date: prev_balance && prev_balance.date,
-      next_balance_date: next_balance && next_balance.date,
+      prev_voting_period_date: prev_voting_period && prev_voting_period.start_date,
+      next_voting_period_date: next_voting_period && next_voting_period.start_date,
       nominations: nominations)
   end
 

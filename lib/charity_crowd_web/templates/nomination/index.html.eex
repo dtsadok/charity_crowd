@@ -53,9 +53,11 @@
   </tbody>
 </table>
 
-<%= if @prev_balance_date do %>
-  <div><%= link "Previous Voting Period", to: Routes.nomination_path(@conn, :index, %{year: @prev_balance_date.year, month: @prev_balance_date.month, day: @prev_balance_date.day}) %></div>
+<%= if @prev_voting_period_date do %>
+  <div><%= link "Previous Voting Period", to: Routes.nomination_path(@conn, :index,
+    %{year: @prev_voting_period_date.year, month: @prev_voting_period_date.month, day: @prev_voting_period_date.day}) %></div>
 <% end %>
-<%= if @next_balance_date do %>
-  <div><%= link "Next Voting Period", to: Routes.nomination_path(@conn, :index, %{year: @next_balance_date.year, month: @next_balance_date.month, day: @next_balance_date.day}) %></div>
+<%= if @next_voting_period_date do %>
+  <div><%= link "Next Voting Period", to: Routes.nomination_path(@conn, :index,
+    %{year: @next_voting_period_date.year, month: @next_voting_period_date.month, day: @next_voting_period_date.day}) %></div>
 <% end %>

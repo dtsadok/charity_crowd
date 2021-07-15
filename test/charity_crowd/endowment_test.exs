@@ -29,31 +29,6 @@ defmodule CharityCrowd.EndowmentTest do
       assert b.amount_cents == 1000
     end
 
-    test "get_next_balance_for/1 returns correct Balance" do
-      today = Calendar.Date.today! "America/New_York"
-      yesterday = Calendar.Date.prev_day! today
-      tomorrow = Calendar.Date.next_day! today
-      fixture_balance(1000, yesterday)
-      #TODO: the below should not be valid
-      fixture_balance(2000, tomorrow)
-      b = Endowment.get_next_balance_for(today)
-      assert b.amount_cents == 2000
-    end
-
-    test "voting_period_for/1 returns correct times" do
-      tz = "America/New_York"
-      today = Calendar.Date.today! tz
-      yesterday = Calendar.Date.prev_day! today
-      tomorrow = Calendar.Date.next_day! today
-      fixture_balance(1000, yesterday)
-      #TODO: the below should not be valid
-      fixture_balance(2000, tomorrow)
-      correct_start = Calendar.DateTime.from_date_and_time_and_zone!(yesterday, ~T[00:00:00], tz) |> Calendar.DateTime.shift_zone!("UTC")
-      correct_end = Calendar.DateTime.from_date_and_time_and_zone!(tomorrow, ~T[00:00:00], tz) |> Calendar.DateTime.shift_zone!("UTC")
-
-      assert {correct_start, correct_end} == Endowment.voting_period_for(today)
-    end
-
     test "get_grant_budget_cents!/1 returns correct allocation for given date" do
       tz = "America/New_York"
       today = Calendar.Date.today! tz
