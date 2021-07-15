@@ -6,8 +6,8 @@ defmodule CharityCrowd.Repo.Migrations.CreateMembers do
       add :nickname, :string
       add :first, :string
       add :last, :string
-      add :email, :string
-      add :password, :string
+      add :email, :string, null: false
+      add :password, :string, null: false
 
       timestamps()
     end

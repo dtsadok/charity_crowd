@@ -3,8 +3,8 @@ defmodule CharityCrowd.Repo.Migrations.CreateBalances do
 
   def change do
     create table(:balances) do
-      add :amount_cents, :integer
-      add :date, :date
+      add :amount_cents, :integer, null: false
+      add :date, :date, null: false
 
       timestamps()
     end
