@@ -28,19 +28,15 @@ defmodule CharityCrowd.Fixtures do
   end
 
   def fixture_vote(assoc \\ [], value \\ :Y) do
-    member = assoc[:member] || fixture_member("voter", "voter@example.com")
     nomination = assoc[:nomination] || fixture_nomination()
     attrs = %{
-      member_id: member.id,
       nomination_id: nomination.id,
       value: value
     }
  
-    {:ok, _vote} =
-        attrs
-        |> Grants.create_vote()
+    {:ok, vote} = Grants.create_vote(attrs)
 
-    Grants.get_vote!(member.id, nomination.id)
+    vote
   end
 
   def fixture_invite_code(attrs \\ %{}) do

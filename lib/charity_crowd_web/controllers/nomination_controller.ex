@@ -31,10 +31,7 @@ defmodule CharityCrowdWeb.NominationController do
     day_after = balance && Calendar.Date.next_day!(balance.date)
     next_balance = day_after && Endowment.get_next_balance_for(day_after)
 
-    nominations = case current_member do
-      nil -> Grants.list_nominations(date)
-      _ -> Grants.list_nominations_with_votes_by(current_member, date)
-    end
+    nominations = Grants.list_nominations(date)
 
     render(conn, "index.html",
       current_member: current_member,

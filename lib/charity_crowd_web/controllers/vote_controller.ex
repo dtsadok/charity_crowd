@@ -3,54 +3,41 @@ defmodule CharityCrowdWeb.VoteController do
   alias CharityCrowd.Grants
 
   def create(conn, %{"vote" => vote_params}) do
-    member_id = conn.assigns[:current_member].id
-    vote_params = Map.put(vote_params, "member_id", member_id)
+    #how many votes do we have left?
 
-    #TODO: DB Transaction
-    case Grants.create_vote(vote_params) do
-      {:ok, _vote} ->
-        #TODO: Globalize
-        Calendar.Date.today!("America/New_York")
-        |> Grants.list_nominations
-        |> Grants.calculate_percentages!
+    current_member = conn.assigns[:current_member]
 
-        conn
-        |> put_flash(:info, "Vote counted successfully.")
-        |> redirect(to: Routes.nomination_path(conn, :index))
+    #prevent voting on own nomination
+    nomination_id = vote_params["nomination_id"]
+    nomination = Grants.get_nomination!(nomination_id)
 
-      #probably trying to double-vote
-      {:error, %Ecto.Changeset{} = _} ->
+    if current_member.id == nomination.member_id do
         conn
         |> put_resp_content_type("text/html")
-        |> send_resp(422, "Vote data invalid")
+        |> send_resp(422, "Cannot vote on own nomination")
+    else
+      #TODO: DB Transaction
+      case Grants.create_vote(vote_params) do
+        {:ok, _vote} ->
+          #TODO: Globalize
+          Calendar.Date.today!("America/New_York")
+          |> Grants.list_nominations
+          |> Grants.calculate_percentages!
 
-      {:error, msg} ->
-        conn
-        |> put_resp_content_type("text/html")
-        |> send_resp(422, msg)
-    end
-  end
+          conn
+          |> put_flash(:info, "Vote counted successfully.")
+          |> redirect(to: Routes.nomination_path(conn, :index))
 
-  def delete(conn, %{"id" => nomination_id}) do
-    member_id = conn.assigns[:current_member].id
+        {:error, %Ecto.Changeset{} = _changeset} ->
+          conn
+          |> put_resp_content_type("text/html")
+          |> send_resp(422, "Vote is invalid")
 
-    #TODO: DB Transaction
-    vote = Grants.get_vote!(member_id, nomination_id)
-    case Grants.delete_vote(vote) do
-      {:ok, _vote} ->
-        #TODO: Globalize
-        Calendar.Date.today!("America/New_York")
-        |> Grants.list_nominations
-        |> Grants.calculate_percentages!
-
-        conn
-        |> put_flash(:info, "Vote withdrawn successfully.")
-        |> redirect(to: Routes.nomination_path(conn, :index))
-
-      {:error, message} ->
-        conn
-        |> put_resp_content_type("text/html")
-        |> send_resp(422, message)
+        {:error, msg} ->
+          conn
+          |> put_resp_content_type("text/html")
+          |> send_resp(422, msg)
+      end
     end
   end
 end

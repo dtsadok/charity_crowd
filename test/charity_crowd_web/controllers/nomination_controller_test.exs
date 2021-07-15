@@ -35,19 +35,10 @@ defmodule CharityCrowdWeb.NominationControllerTest do
     test "shows page when logged in as voter", %{conn: conn} do
       member = fixture_member()
       nomination = fixture_nomination()
-      _vote = fixture_vote(member: member, nomination: nomination, value: :N)
+      _vote = fixture_vote(nomination: nomination, value: :N)
       conn = login_as conn, member
       conn = get(conn, Routes.nomination_path(conn, :index))
       #for now just make sure page renders ok
-      assert html_response(conn, 200) =~ "Listing Nominations"
-    end
-
-    test "shows page when logged in as other", %{conn: conn} do
-      member = fixture_member()
-      nomination = fixture_nomination()
-      _vote = fixture_vote(member: member, nomination: nomination, value: :N)
-      conn = login_as conn, fixture_member("other", "other@example.com")
-      conn = get(conn, Routes.nomination_path(conn, :index))
       assert html_response(conn, 200) =~ "Listing Nominations"
     end
   end

@@ -28,7 +28,6 @@
         <%=
         cond do
           @archived || (@current_member && @current_member.id == nomination.member_id) -> nomination.yes_vote_count || 0
-          @current_member && nomination.vote_value == :Y -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_yes_vote.html", conn: @conn, nomination: nomination)
         end
         %>
@@ -37,7 +36,6 @@
         <%=
         cond do
           @archived || (@current_member && @current_member.id == nomination.member_id) -> nomination.no_vote_count || 0
-          @current_member && nomination.vote_value == :N -> render("withdraw_vote.html", conn: @conn, nomination: nomination, vote_type: nomination.vote_value)
           true -> render("create_no_vote.html", conn: @conn, nomination: nomination)
         end
         %>

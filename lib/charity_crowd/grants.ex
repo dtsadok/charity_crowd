@@ -56,23 +56,6 @@ defmodule CharityCrowd.Grants do
       #|> Repo.preload([:member, :votes])
   end
 
-  def list_nominations_with_votes_by(member, date) do
-    {start_datetime, end_datetime} = Endowment.voting_period_for(date)
-
-    query = from nom in Nomination,
-      left_join: yv in subquery(yes_vote_count_subquery()),
-      on: yv.nomination_id == nom.id,
-      left_join: nv in subquery(no_vote_count_subquery()),
-      on: nv.nomination_id == nom.id,
-      left_join: v in Vote,
-      on: v.nomination_id == nom.id and v.member_id == ^member.id,
-      select: %{id: nom.id, member_id: nom.member_id, name: nom.name, pitch: nom.pitch, percentage: nom.percentage, inserted_at: nom.inserted_at, yes_vote_count: yv.vote_count, no_vote_count: nv.vote_count, vote_value: v.value},
-      where: nom.inserted_at >= ^start_datetime and nom.inserted_at < ^end_datetime
-
-    Repo.all(query)
-      #|> Repo.preload([:member, :votes])
-  end
-
   #remove any nominations where no votes >= yes votes
   def filter_nominations(nominations) do
     Enum.filter(nominations,
@@ -224,30 +207,8 @@ defmodule CharityCrowd.Grants do
   """
   def list_votes do
     Repo.all(Vote)
-      |> Repo.preload([:member, :nomination])
+      |> Repo.preload([:nomination])
   end
-
-  @doc """
-  Gets a single vote.
-
-  Raises `Ecto.NoResultsError` if the Vote does not exist.
-
-  ## Examples
-
-      iex> get_vote!(123, 456)
-      %Vote{}
-
-      iex> get_vote!(456, 789)
-      ** (Ecto.NoResultsError)
-
-  """
-  def get_vote!(member_id, nomination_id) do
-    query = from v in Vote,
-              where: v.member_id==^member_id and v.nomination_id==^nomination_id
-    Repo.one!(query)
-      |> Repo.preload([:member, :nomination])
-  end
-
   @doc """
   Creates a vote.
 
@@ -263,7 +224,6 @@ defmodule CharityCrowd.Grants do
   def create_vote(attrs \\ %{}) do
     new_vote = %Vote{} |> Vote.changeset(attrs)
 
-    member_id = new_vote.changes.member_id
     nomination_id = new_vote.changes.nomination_id
 
     #TODO: tests pass attributes with atom keys, website passes with string keys.  Should be better way to extract these.  changeset doesn't care
@@ -283,30 +243,8 @@ defmodule CharityCrowd.Grants do
     cond do
       nomination && !current?(nomination) ->
         {:error, "Cannot vote on archived nomination."}
-      nomination && nomination.member_id == member_id ->
-        {:error, "Cannot vote on own nomination."}
       true ->
         Repo.insert(new_vote)
-    end
-  end
-
-  @doc """
-  Deletes a vote.
-
-  ## Examples
-
-      iex> delete_vote(vote)
-      {:ok, %Vote{}}
-
-      iex> delete_vote(vote)
-      {:error, %Ecto.Changeset{}}
-
-  """
-  def delete_vote(%Vote{} = vote) do
-    if !current?(vote.nomination) do
-      {:error, "Cannot withdraw vote from archived nomination."}
-    else
-      Repo.delete(vote)
     end
   end
 end
