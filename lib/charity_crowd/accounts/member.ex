@@ -2,10 +2,12 @@ defmodule CharityCrowd.Accounts.Member do
   use Ecto.Schema
   import Ecto.Changeset
   alias CharityCrowd.Grants.Nomination
+  alias CharityCrowd.Accounts.Ballot
   alias Argon2
 
   schema "members" do
     has_many :nominations, Nomination
+    has_many :ballots, Ballot
 
     field :nickname, :string
     field :first, :string
