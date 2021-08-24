@@ -48,6 +48,7 @@ defmodule CharityCrowd.MixProject do
       {:plug_cowboy, "~> 2.0"},
       {:argon2_elixir, "~> 2.0"},
       {:calendar, "~> 1.0.0"},
+      {:number, "~> 1.0.3"},
       {:ex_machina, "~> 2.7.0", only: :test}
     ]
   end
