@@ -24,7 +24,7 @@ defmodule CharityCrowdWeb.NominationController do
     last_balance = Endowment.get_last_balance!()
     archived = date < last_balance.date
 
-    is_out_of_votes = current_member && Accounts.count_ballots(current_member, last_balance.date) >= 3
+    votes_left =  Accounts.votes_left(current_member)
 
     voting_period = Grants.get_prev_voting_period_for(date)
     balance = Endowment.get_prev_balance_for(date)
@@ -46,7 +46,7 @@ defmodule CharityCrowdWeb.NominationController do
       voting_period_date: voting_period && voting_period.start_date,
       grant_budget_cents: grant_budget_cents,
       archived: archived,
-      is_out_of_votes: is_out_of_votes,
+      votes_left: votes_left,
       prev_voting_period_date: prev_voting_period && prev_voting_period.start_date,
       next_voting_period_date: next_voting_period && next_voting_period.start_date,
       nominations: nominations)

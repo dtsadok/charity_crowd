@@ -7,6 +7,7 @@ defmodule CharityCrowd.Accounts do
   alias CharityCrowd.Repo
 
   alias CharityCrowd.Accounts.Member
+  alias CharityCrowd.Grants
   alias CharityCrowd.Grants.Nomination
 
   @doc """
@@ -250,10 +251,10 @@ defmodule CharityCrowd.Accounts do
   alias CharityCrowd.Accounts.Ballot
 
   @doc """
-  Returns the number of balances for a member.
+  Returns the number of ballots for a member.
   ## Examples
 
-      iex> count_ballots(member)
+      iex> count_ballots(member, last_week)
       3
 
   """
@@ -264,6 +265,15 @@ defmodule CharityCrowd.Accounts do
         select: count(b.id)
 
     Repo.one!(query)
+  end
+
+  def votes_left(member) do
+    if member do
+      last_voting_period = Grants.get_last_voting_period!()
+      3 - count_ballots(member, last_voting_period.start_date)
+    else
+      0
+    end
   end
 
   @doc """
@@ -291,10 +301,13 @@ defmodule CharityCrowd.Accounts do
       {:error, %Ecto.Changeset{}}
 
   """
-  def create_ballot(attrs \\ %{}) do
-    %Ballot{}
-    |> Ballot.changeset(attrs)
-    |> Repo.insert()
+  def create_ballot(member, date) do
+    if member do
+      Ecto.build_assoc(member, :ballots, %{date: date})
+      |> Repo.insert()
+    else
+      {:error, %Ecto.Changeset{}}
+    end
   end
 
   @doc """

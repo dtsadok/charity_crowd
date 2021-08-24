@@ -10,8 +10,6 @@ defmodule CharityCrowdWeb.VoteController do
     nomination_id = vote_params["nomination_id"]
     nomination = Grants.get_nomination!(nomination_id)
 
-    last_voting_period = Grants.get_last_voting_period!()
-
     cond do
       current_member.id == nomination.member_id ->
         conn
@@ -19,7 +17,7 @@ defmodule CharityCrowdWeb.VoteController do
         |> send_resp(422, "Cannot vote on own nomination")
 
     #do we have any votes left?
-    Accounts.count_ballots(current_member, last_voting_period.start_date) >= 3 ->
+    Accounts.votes_left(current_member) <= 0 ->
         conn
         |> put_resp_content_type("text/html")
         |> send_resp(422, "No more votes for this voting period.")
@@ -27,7 +25,7 @@ defmodule CharityCrowdWeb.VoteController do
     true ->
       #create new Ballot for this vote
       today = Calendar.Date.today!("America/New_York")
-      Accounts.create_ballot(%{member: current_member, date: today})
+      {:ok, _ballot} = Accounts.create_ballot(current_member, today)
 
       #TODO: DB Transaction
       case Grants.create_vote(vote_params) do

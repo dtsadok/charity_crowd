@@ -39,16 +39,11 @@ defmodule CharityCrowd.Fixtures do
     vote
   end
 
-  def fixture_ballot(assoc \\ [], date \\ nil) do
-    member = assoc[:member] || fixture_member("voter", "voter@example.com")
-      date = date || Calendar.Date.today!("America/New_York")
+  def fixture_ballot(member \\ nil, date \\ nil) do
+    member = member || fixture_member("voter", "voter@example.com")
+    date = date || Calendar.Date.today!("America/New_York")
 
-    attrs = %{
-      member_id: member.id,
-      date: date
-    }
-
-    {:ok, ballot} = Accounts.create_ballot(attrs)
+    {:ok, ballot} = Accounts.create_ballot(member, date)
 
     ballot
   end

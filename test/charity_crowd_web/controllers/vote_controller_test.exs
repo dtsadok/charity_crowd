@@ -38,9 +38,9 @@ defmodule CharityCrowdWeb.VoteControllerTest do
 
     test "does not allow me to vote more than 3 times per voting period", %{conn: conn} do
       member = fixture_member()
-      fixture_ballot(%{member: member})
-      fixture_ballot(%{member: member})
-      fixture_ballot(%{member: member})
+      fixture_ballot(member)
+      fixture_ballot(member)
+      fixture_ballot(member)
       nomination = fixture_nomination()
 
       conn = login_as conn, member

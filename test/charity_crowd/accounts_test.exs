@@ -125,20 +125,29 @@ defmodule CharityCrowd.AccountsTest do
   describe "ballots" do
     alias CharityCrowd.Accounts.Ballot
 
-    @valid_attrs %{date: ~D[2010-04-17], member_id: 42}
-    @invalid_attrs %{date: nil, member_id: nil}
-
     test "count_ballots/2 returns number of ballots for member since given date" do
       today = Calendar.Date.today!("America/New_York")
       member = fixture_member()
 
       assert Accounts.count_ballots(member, today) == 0
 
-      fixture_ballot(%{member: member})
+      fixture_ballot(member)
       assert Accounts.count_ballots(member, today) == 1
 
-      fixture_ballot(%{member: member})
+      fixture_ballot(member)
       assert Accounts.count_ballots(member, today) == 2
+    end
+
+    test "votes_left/1 returns number of votes left for a member in current voting period" do
+      fixture_voting_period()
+      member = fixture_member()
+      assert Accounts.votes_left(member) == 3
+      fixture_ballot(member)
+      assert Accounts.votes_left(member) == 2
+      fixture_ballot(member)
+      assert Accounts.votes_left(member) == 1
+      fixture_ballot(member)
+      assert Accounts.votes_left(member) == 0
     end
 
     test "list_ballots/0 returns all ballots" do
@@ -146,14 +155,15 @@ defmodule CharityCrowd.AccountsTest do
       assert Accounts.list_ballots() == [ballot]
     end
 
-    test "create_ballot/1 with valid data creates a ballot" do
-      assert {:ok, %Ballot{} = ballot} = Accounts.create_ballot(@valid_attrs)
+    test "create_ballot/2 with valid data creates a ballot" do
+      member = fixture_member()
+      assert {:ok, %Ballot{} = ballot} = Accounts.create_ballot(member, ~D[2010-04-17])
       assert ballot.date == ~D[2010-04-17]
-      assert ballot.member_id == 42
+      assert ballot.member_id == member.id
     end
 
-    test "create_ballot/1 with invalid data returns error changeset" do
-      assert {:error, %Ecto.Changeset{}} = Accounts.create_ballot(@invalid_attrs)
+    test "create_ballot/2 with invalid data returns error changeset" do
+      assert {:error, %Ecto.Changeset{}} = Accounts.create_ballot(nil, nil)
     end
 
     test "change_ballot/1 returns a ballot changeset" do
