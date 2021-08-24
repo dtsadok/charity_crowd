@@ -1,7 +1,10 @@
 <h1>Listing Nominations</h1>
 
-<h2 id="last_balance">Balance as of <%= @balance_date %>: $<%= @balance_cents/100 %></h2>
-<h2 id="allocation">Grant Budget: $<%= @grant_budget_cents/100 %></h2>
+<h2 id="last_balance">Balance as of <%= @balance_date %>: <%= Number.Currency.number_to_currency @balance_cents/100 %></h2>
+<h2 id="allocation">Grant Budget: <%= Number.Currency.number_to_currency @grant_budget_cents/100 %></h2>
+<%= if @votes_left do %>
+  <h3 id="votes_left">Votes Left: <%= @votes_left %></h3>
+<% end %>
 
 <%= if !@archived do %>
   <span><%= link "Nominate Charity", to: Routes.nomination_path(@conn, :new) %></span>
@@ -27,7 +30,7 @@
       <td class="yes-vote">
         <%=
         cond do
-          @archived || @is_out_of_votes || (@current_member && @current_member.id == nomination.member_id) ->
+          @archived || @votes_left <= 0 || (@current_member && @current_member.id == nomination.member_id) ->
             nomination.yes_vote_count || 0
 
           true ->
@@ -38,7 +41,7 @@
       <td class="no-vote">
         <%=
         cond do
-          @archived || @is_out_of_votes || (@current_member && @current_member.id == nomination.member_id) ->
+          @archived || @votes_left <=0 || (@current_member && @current_member.id == nomination.member_id) ->
             nomination.no_vote_count || 0
 
           true ->
@@ -47,7 +50,7 @@
         %>
       </td>
       <td><%= round(nomination.percentage * 100_00)/100 %>%</td>
-      <td>$<%= round(nomination.percentage * @grant_budget_cents)/100 %></td>
+      <td><%= round(nomination.percentage * @grant_budget_cents)/100 |> Number.Currency.number_to_currency %></td>
     </tr>
 <% end %>
   </tbody>
